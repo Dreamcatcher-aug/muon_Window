@@ -17,11 +17,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tabWidget->setTabText(1, tr("Receive"));
     ui->tabWidget->setTabText(2,tr("SPIROC2e / Slow Control 1"));
     ui->tabWidget->setTabText(3,tr("Slow Control 2"));
-    ui->tabWidget->setTabText(4,tr("Slow Control 3 / Debug"));
+    ui->tabWidget->setTabText(4,tr("Slow Control 3 "));
+    ui->tabWidget->setTabText(5,tr("Debug"));
     ui->progressBar->setValue(0);
     ui->sendfilebar->setEnabled(false);
-    ui->starttosave->setEnabled(false);
-    ui->endlisten->setEnabled(false);
+    ui->ACQ_group_box->setEnabled(false);
+    ui->receiveprocess->setEnabled(false);
     ui->receiveprogress->setRange(0, 100);
     ui->receiveprogress->setValue(0);
     ui->timeSplitRadio->setChecked(true);
@@ -30,12 +31,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->basicset->setStyleSheet("QGroupBox "
                             "{"
-                            "border: 0.5px solid white;"
+                            "border: 0.2px solid white;"
                             "border-radius: 5px;"
                             "padding: 10px;"
                             "}");
 
-    ui->statusbar_2->setStyleSheet("QGroupBox "
+    /*ui->statusbar_2->setStyleSheet("QGroupBox "
                                 "{"
                                 "border: 0.5px solid white;"
                                 "border-radius: 5px;"
@@ -82,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
                                 "border: 0.5px solid white;"
                                 "border-radius: 5px;"
                                 "padding: 10px;"
-                                "}");
+                                "}");*/
 
 
     socket = new QTcpSocket(this);
@@ -183,6 +184,7 @@ void MainWindow::on_connect_clicked()
                 QMessageBox::information(this,"连接提示","连接服务器成功");
                 ui->outTextEdit->append("<font color='green'>连接提示：服务器连接成功！");
                 ui->sendfilebar->setEnabled(true);
+                ui->ACQ_group_box->setEnabled(true);
             });
 
     connect(socket,&QTcpSocket::disconnected,[this]()
@@ -297,44 +299,64 @@ QString MainWindow::readFileForPreview(const QString &filename, QByteArray &data
 void MainWindow::on_openfile_clicked()
 {
     ui->commandTextEdit->clear();
-    QStringList filenames = QFileDialog::getOpenFileNames(
-        this,
-        tr("选择文件"),
-        QDir::homePath(),
-        tr("dat文件 (*.dat*)")
-        );
 
-    if (filenames.isEmpty())
+    QSettings settings01("01");
+    QString lastOpenPath01;
+
+    if (settings01.contains("LastOpenFilePath01"))
+    {
+        lastOpenPath01 = settings01.value("LastOpenFilePath01").toString();
+        qDebug() << "上次打开的路径：" << lastOpenPath01;
+    }
+    else
+    {
+        lastOpenPath01 = QDir::homePath();
+        qDebug() << "使用默认路径：" << lastOpenPath01;
+    }
+
+    QStringList filenames = QFileDialog::getOpenFileNames
+        (
+            this,
+            tr("选择文件"),
+            lastOpenPath01,
+            tr("dat文件 (*.dat*)")
+            );
+
+    if (!filenames.isEmpty())
+    {
+        QFileInfo firstFileInfo(filenames.first());
+        QString currentSelectedDir = firstFileInfo.absolutePath();
+        settings01.setValue("LastOpenFilePath01", currentSelectedDir);
+        settings01.sync();
+        qDebug() << "本次保存的路径：" << currentSelectedDir;
+
+        m_fileQueue.clear();
+        m_fileQueue.append(filenames);
+
+        ui->outTextEdit->append(QString("<font color='blue'>已选择 %1 个文件</font>").arg(filenames.size()));
+        for (const QString &file : filenames)
+        {
+            QFileInfo fileInfo(file);
+            ui->outTextEdit->append(fileInfo.fileName());
+        }
+
+        m_fileQueue.clear();
+        m_fileQueue.append(filenames);
+        ui->commandTextEdit->clear();
+        QString allFilesPreview;
+        foreach (const QString &file, filenames)
+        {
+            QByteArray tempBuffer;
+            allFilesPreview += readFileForPreview(file, tempBuffer);
+            qApp->processEvents();
+        }
+        ui->commandTextEdit->setPlainText(allFilesPreview);
+    }
+    else
     {
         QMessageBox::warning(this, tr("警告"), tr("请选择文件"));
         return;
     }
-
-    m_fileQueue.clear();
-    m_fileQueue.append(filenames);
-
-    ui->outTextEdit->append(QString("<font color='blue'>已选择 %1 个文件</font>").arg(filenames.size()));
-
-    for (const QString &file : filenames)
-    {
-        QFileInfo fileInfo(file);
-        ui->outTextEdit->append(fileInfo.fileName());
-    }
-
-    m_fileQueue.clear();
-    m_fileQueue.append(filenames);
-
-    ui->commandTextEdit->clear();
-    QString allFilesPreview;
-
-    foreach (const QString &file, filenames)
-    {
-        QByteArray tempBuffer;
-        allFilesPreview += readFileForPreview(file, tempBuffer);
-        qApp->processEvents();
-    }
-
-    ui->commandTextEdit->setPlainText(allFilesPreview);
 }
 
 void MainWindow::on_sendfile_clicked()
@@ -473,7 +495,7 @@ void MainWindow::on_elink_reset_clicked()
     }
     else
     {
-        ui->outTextEdit->append(QString("<font color='green'>成功发送FEB_CLK_RST</font>").arg(bytesSent));
+        ui->outTextEdit->append(QString("<font color='green'>成功发送ELINK_RESET</font>").arg(bytesSent));
 
         QString hexStr;
         for (const auto &c : fixedData)
@@ -483,6 +505,58 @@ void MainWindow::on_elink_reset_clicked()
         ui->commandTextEdit->append("发送内容（十六进制）：" + hexStr);
     }
 }
+
+void MainWindow::on_fee_on_clicked()
+{
+    QByteArray fixedData;
+    fixedData.append(static_cast<char>(0xFF));
+    fixedData.append(static_cast<char>(0x04));
+
+    qint64 bytesSent = socket->write(fixedData);
+
+    if (bytesSent == -1)
+    {
+        ui->outTextEdit->append("<font color='red'>发送固定内容失败</font>");
+    }
+    else
+    {
+        ui->outTextEdit->append(QString("<font color='green'>成功发送FEE_ON</font>").arg(bytesSent));
+
+        QString hexStr;
+        for (const auto &c : fixedData)
+        {
+            hexStr += QString("%1 ").arg(static_cast<unsigned char>(c), 2, 16, QChar('0')).toUpper();
+        }
+        ui->commandTextEdit->append("发送内容（十六进制）：" + hexStr);
+    }
+}
+
+
+void MainWindow::on_fee_off_clicked()
+{
+    QByteArray fixedData;
+    fixedData.append(static_cast<char>(0xFF));
+    fixedData.append(static_cast<char>(0x05));
+
+    qint64 bytesSent = socket->write(fixedData);
+
+    if (bytesSent == -1)
+    {
+        ui->outTextEdit->append("<font color='red'>发送固定内容失败</font>");
+    }
+    else
+    {
+        ui->outTextEdit->append(QString("<font color='green'>成功发送FEE_OFF</font>").arg(bytesSent));
+
+        QString hexStr;
+        for (const auto &c : fixedData)
+        {
+            hexStr += QString("%1 ").arg(static_cast<unsigned char>(c), 2, 16, QChar('0')).toUpper();
+        }
+        ui->commandTextEdit->append("发送内容（十六进制）：" + hexStr);
+    }
+}
+
 
 void MainWindow::on_ACQ_start_clicked()
 {
@@ -498,7 +572,7 @@ void MainWindow::on_ACQ_start_clicked()
     }
     else
     {
-        ui->outTextEdit->append(QString("<font color='green'>成功发送FEB_CLK_RST</font>").arg(bytesSent));
+        ui->outTextEdit->append(QString("<font color='green'>成功发送ACQ_START</font>").arg(bytesSent));
 
         QString hexStr;
         for (const auto &c : fixedData)
@@ -523,7 +597,7 @@ void MainWindow::on_ACQ_stop_clicked()
     }
     else
     {
-        ui->outTextEdit->append(QString("<font color='green'>成功发送FEB_CLK_RST</font>").arg(bytesSent));
+        ui->outTextEdit->append(QString("<font color='green'>成功发送ACQ_STOP</font>").arg(bytesSent));
 
         QString hexStr;
         for (const auto &c : fixedData)
@@ -543,11 +617,9 @@ void MainWindow::on_confirmfilename_clicked()
     if (filename.isEmpty())
     {
         QMessageBox::warning(this, "警告", "文件名不能为空");
-        ui->starttosave->setEnabled(false);
-        ui->endlisten->setEnabled(false);
+        ui->receiveprocess->setEnabled(false);
         return;
     }
-
 
     bool isValid = true;
 
@@ -561,8 +633,7 @@ void MainWindow::on_confirmfilename_clicked()
         if (!isValid || days < 0)
         {
             QMessageBox::warning(this, "警告", "请输入有效的天数（非负整数）");
-            ui->starttosave->setEnabled(false);
-            ui->endlisten->setEnabled(false);
+            ui->receiveprocess->setEnabled(false);
             return;
         }
     }
@@ -574,8 +645,7 @@ void MainWindow::on_confirmfilename_clicked()
         if (!isValid || hours < 0)
         {
             QMessageBox::warning(this, "警告", "请输入有效的小时数（非负整数）");
-            ui->starttosave->setEnabled(false);
-            ui->endlisten->setEnabled(false);
+            ui->receiveprocess->setEnabled(false);
             return;
         }
     }
@@ -587,8 +657,7 @@ void MainWindow::on_confirmfilename_clicked()
         if (!isValid || minutes < 0)
         {
             QMessageBox::warning(this, "警告", "请输入有效的分钟数（非负整数）");
-            ui->starttosave->setEnabled(false);
-            ui->endlisten->setEnabled(false);
+            ui->receiveprocess->setEnabled(false);
             return;
         }
     }
@@ -600,8 +669,7 @@ void MainWindow::on_confirmfilename_clicked()
         if (!isValid || seconds < 0)
         {
             QMessageBox::warning(this, "警告", "请输入有效的秒数（非负整数）");
-            ui->starttosave->setEnabled(false);
-            ui->endlisten->setEnabled(false);
+            ui->receiveprocess->setEnabled(false);
             return;
         }
     }
@@ -610,8 +678,7 @@ void MainWindow::on_confirmfilename_clicked()
     if (timeInterval <= 0)
     {
         QMessageBox::warning(this, "警告", "时间间隔必须大于0秒");
-        ui->starttosave->setEnabled(false);
-        ui->endlisten->setEnabled(false);
+        ui->receiveprocess->setEnabled(false);
         return;
     }}
 
@@ -625,8 +692,7 @@ void MainWindow::on_confirmfilename_clicked()
             if (!isValid || bytes < 0)
             {
                 QMessageBox::warning(this, "警告", "请输入有效的字节数（非负整数）");
-                ui->starttosave->setEnabled(false);
-                ui->endlisten->setEnabled(false);
+                ui->receiveprocess->setEnabled(false);
             }
         }
         QString kbText = ui->kbinterval->text().trimmed();
@@ -636,8 +702,7 @@ void MainWindow::on_confirmfilename_clicked()
             if (!isValid || kb < 0)
             {
                 QMessageBox::warning(this, "警告", "请输入有效的KB数（非负整数）");
-                ui->starttosave->setEnabled(false);
-                ui->endlisten->setEnabled(false);
+                ui->receiveprocess->setEnabled(false);
             }
         }
         QString mbText = ui->mbinterval->text().trimmed();
@@ -647,8 +712,7 @@ void MainWindow::on_confirmfilename_clicked()
             if (!isValid || mb < 0)
             {
                 QMessageBox::warning(this, "警告", "请输入有效的MB数（非负整数）");
-                ui->starttosave->setEnabled(false);
-                ui->endlisten->setEnabled(false);
+                ui->receiveprocess->setEnabled(false);
             }
         }
 
@@ -656,8 +720,7 @@ void MainWindow::on_confirmfilename_clicked()
         if (splitSizeBytes <= 0)
         {
             QMessageBox::warning(this, "警告", "分割大小必须大于0字节");
-            ui->starttosave->setEnabled(false);
-            ui->endlisten->setEnabled(false);
+            ui->receiveprocess->setEnabled(false);
             return;
         }
     }
@@ -703,23 +766,44 @@ void MainWindow::on_confirmfilename_clicked()
     }
     QString defaultFileName = filename + "_" + timestamp + "_" + splitDesc + ".dat";
 
+    QSettings settings02("02");
+    QString lastSavePath;
+    QString defaultDialogPath;
+
+    if (settings02.contains("LastSaveFilePath02"))
+    {
+        lastSavePath = settings02.value("LastSaveFilePath02").toString();
+        QFileInfo lastSaveFileInfo(lastSavePath);
+        QString lastSaveDir = lastSaveFileInfo.absolutePath();
+        defaultDialogPath = lastSaveDir + "/" + defaultFileName;
+        qDebug() << "上次保存的完整路径：" << lastSavePath;
+        qDebug() << "本次对话框初始路径：" << defaultDialogPath;
+    }
+    else
+    {
+        defaultDialogPath = QDir::homePath() + "/" + defaultFileName;
+        qDebug() << "无上次保存路径，使用默认路径：" << defaultDialogPath;
+    }
 
     QString filePath = QFileDialog::getSaveFileName
         (
         this,
         "选择保存位置",
-        QDir::homePath() + "/" + defaultFileName,
+        defaultDialogPath,
         "数据文件 (*.dat);;所有文件 (*)"
         );
 
     if (filePath.isEmpty())
     {
         QMessageBox::information(this, "提示", "未选择文件位置，操作取消");
-        ui->starttosave->setEnabled(false);
-        ui->endlisten->setEnabled(false);
+        ui->receiveprocess->setEnabled(false);
         currentFilePath.clear();
         return;
     }
+
+    settings02.setValue("LastSaveFilePath02", filePath);
+    settings02.sync();
+    qDebug() << "本次保存的完整路径（已持久化）：" << filePath;
 
     currentFilePath = filePath;
     outputFile = new QFile(currentFilePath);
@@ -728,8 +812,7 @@ void MainWindow::on_confirmfilename_clicked()
     {
         QMessageBox::information(this, "提示", "文件已创建：" + currentFilePath);
         ui->receivestatusTextEdit->append(QString("<font color='white'>文件保存路径：%1</font>").arg(currentFilePath));
-        ui->starttosave->setEnabled(true);
-        ui->endlisten->setEnabled(true);
+        ui->receiveprocess->setEnabled(true);
         ui->receivestatusTextEdit->append("<font color='green'>文件准备就绪，等待开始收集数据</font>");
     }
     else
@@ -737,8 +820,7 @@ void MainWindow::on_confirmfilename_clicked()
         QMessageBox::warning(this, "错误", "文件创建失败：" + outputFile->errorString());
         delete outputFile;
         outputFile = nullptr;
-        ui->starttosave->setEnabled(false);
-        ui->endlisten->setEnabled(false);
+        ui->receiveprocess->setEnabled(false);
     }
 
 
@@ -876,7 +958,7 @@ void MainWindow::switchToNewFile()
         QMessageBox::warning(this, "错误", "新文件创建失败：" + outputFile->errorString());
         delete outputFile;
         outputFile = nullptr;
-        on_endlisten_clicked();  // 创建失败时停止收集
+        on_endlisten_clicked();
     }
 }
 
@@ -903,7 +985,7 @@ void MainWindow::onDataReceived()
     if (!isWritingA)
     {
         a.append(newData);
-        ui->receivedata->append(QString("<font color='white'>缓冲区a接收中，当前大小：%1 KB</font>")
+        ui->receivedata->append(QString("<font color='black'>缓冲区a接收中，当前大小：%1 KB</font>")
                                               .arg(a.size() / 1024.0, 0, 'f', 2));
 
         if (a.size() >= BLOCK_SIZE)
@@ -1018,8 +1100,7 @@ void MainWindow::on_endlisten_clicked()
         QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(currentFilePath).absolutePath()));
     }
 
-    ui->starttosave->setEnabled(false);
-    ui->endlisten->setEnabled(false);
+    ui->receiveprocess->setEnabled(false);
     countdownTimer->stop();
     ui->receiveprogress->setValue(0);
     ui->receivestatusTextEdit->append("<font color='red'>接收已停止，缓冲区已清空</font>");
@@ -1342,10 +1423,26 @@ void MainWindow::on_debug_button_clicked()
         return;
     }
 
+    QSettings settings03("03");
+    QString lastConfigSaveDir;
+    QString defaultDialogDir;
+
+    if (settings03.contains("LastConfigSaveDir"))
+    {
+        lastConfigSaveDir = settings03.value("LastConfigSaveDir").toString();
+        defaultDialogDir = lastConfigSaveDir;
+        qDebug() << "上次配置文件保存目录：" << lastConfigSaveDir;
+    }
+    else
+    {
+        defaultDialogDir = QDir::homePath();
+        qDebug() << "无上次配置文件保存目录，使用默认家目录：" << defaultDialogDir;
+    }
+
     QString selectedDir = QFileDialog::getExistingDirectory(
         this,
         "选择配置文件保存位置",
-        fileDic,
+        defaultDialogDir,
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
         );
 
@@ -1354,6 +1451,10 @@ void MainWindow::on_debug_button_clicked()
         ui->outTextEdit->append("<font color='orange'>已取消保存配置文件</font>");
         return;
     }
+
+    settings03.setValue("LastConfigSaveDir", selectedDir);
+    settings03.sync();
+    qDebug() << "本次配置文件保存目录（已持久化）：" << selectedDir;
 
     QString configPath = selectedDir + "/Configuration.txt";
     QString bitblockPath = selectedDir + "/chipConfiguration.txt";
@@ -1428,7 +1529,7 @@ bool MainWindow::OutputParatable(const QString& path, int chipCount)
           // 格式：参数名     ID     参数值
             sw << QString("%1     %2     %3    ").arg(key).arg(id).arg(value) << Qt::endl;
         }
-        sw << Qt::endl; // 芯片间空行分隔
+        sw << Qt::endl;
     }
 
     file.close();
@@ -2970,6 +3071,8 @@ void MainWindow::on_fineDacButton_clicked()
     int paramId = paramSettings[key]; // 获取参数ID
     setParam(paramId, value);
 }
+
+
 
 
 
