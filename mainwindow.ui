@@ -30,7 +30,7 @@
      </size>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>5</number>
     </property>
     <widget class="QWidget" name="command_and_send">
      <attribute name="title">
@@ -4761,8 +4761,8 @@
      <widget class="QGroupBox" name="groupBox_2">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>50</y>
+        <x>20</x>
+        <y>20</y>
         <width>421</width>
         <height>211</height>
        </rect>
@@ -4775,28 +4775,27 @@
       <property name="title">
        <string>set</string>
       </property>
-      <widget class="QLabel" name="label_114">
+      <widget class="QWidget" name="">
        <property name="geometry">
         <rect>
          <x>20</x>
          <y>30</y>
-         <width>141</width>
-         <height>31</height>
+         <width>191</width>
+         <height>21</height>
         </rect>
        </property>
-       <property name="text">
-        <string>the number off FEE:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="FEE_num">
-       <property name="geometry">
-        <rect>
-         <x>130</x>
-         <y>40</y>
-         <width>113</width>
-         <height>20</height>
-        </rect>
-       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_134">
+        <item>
+         <widget class="QLabel" name="label_114">
+          <property name="text">
+           <string>the number off FEE:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="FEE_num"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </widget>

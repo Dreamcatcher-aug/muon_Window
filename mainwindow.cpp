@@ -1503,12 +1503,15 @@ bool MainWindow::OutputParatable(const QString& path, int chipCount)
 
     QTextStream sw(&file);
     sw << "### Manager Info. ###" << Qt::endl;
+
     QList<int> sortedIds = paramSettings.values();
     std::sort(sortedIds.begin(), sortedIds.end());
 
     for (int chipNum = 1; chipNum <= chipCount; ++chipNum)
     {
         sw << QString("# CHIP%1 #").arg(chipNum) << Qt::endl;
+
+        sw << QString("%1     -     %2").arg(key1).arg(value1) << Qt::endl;
 
         foreach (int id, sortedIds)
         {
@@ -3073,10 +3076,28 @@ void MainWindow::on_fineDacButton_clicked()
 }
 
 
+//额外存在的参数（功能尚未验证）
 
 
 
 
 
 
+
+
+
+
+void MainWindow::on_FEE_num_textChanged(const QString &arg1)
+{
+    bool isInt;
+    uint inputValue = arg1.toUInt(&isInt);
+    if (!isInt)
+    {
+        ui->outTextEdit->append("<font color='red'>Rst column Delay输入无效，请输入非负整数</font>");
+        return;
+    }
+
+    key1 = "FEE_NUM";
+    value1 = QString::number(inputValue);
+}
 

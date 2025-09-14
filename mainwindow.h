@@ -125,10 +125,10 @@ private slots:
     void on_fineDacButton_clicked();
     void on_ENDac2_checkStateChanged(const Qt::CheckState &arg1);
     void on_flagTdcExt_enable_checkStateChanged(const Qt::CheckState &arg1);
-
     void on_fee_on_clicked();
-
     void on_fee_off_clicked();
+
+    void on_FEE_num_textChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
@@ -166,6 +166,10 @@ private:
     QString transformToString();
     int transformToBytes(QByteArray &bitBlock);
     QString fileDic;
+
+    //额外参数
+    QString key1="01";
+    QString value1="FEE_NUM";
 };
 
 
