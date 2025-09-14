@@ -1,8 +1,14 @@
-# 版本更新说明
+# Release update notes
 	v1.0	2025.8.22
-	    ——初始发布版本
+	    —— Initial release version
 ***
 	v1.2    2025.9.12
-	    —— 新增FEE-ON  FEE-OFF 按钮 
-	    —— 修改字体颜色在浅色系统不适配的问题
-	    —— 调整页面布局，优化组件启用逻辑
+	    —— Added FEE-ON FEE-OFF button 
+	    —— Modified font color not suitable for light color systems
+	    —— Adjust the page layout and optimize the component activation logic
+
+***
+	v1.2.2   2025.9.14
+		—— Optimized interface layout
+  		—— Fix known issues
+		—— Add a clear button on the acceptance page 
