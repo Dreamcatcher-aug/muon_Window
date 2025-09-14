@@ -25,6 +25,7 @@
 #include <QRegularExpression>
 #include <QStringList>
 #include<QSettings>
+#include<QDateTime>
 
 
 QT_BEGIN_NAMESPACE
@@ -129,6 +130,8 @@ private slots:
     void on_fee_off_clicked();
 
     void on_FEE_num_textChanged(const QString &arg1);
+
+    void on_receive_data_clear_clicked();
 
 private:
     Ui::MainWindow *ui;

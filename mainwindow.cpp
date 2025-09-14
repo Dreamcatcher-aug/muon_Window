@@ -31,56 +31,56 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->basicset->setStyleSheet("QGroupBox "
                             "{"
-                            "border: 0.2px solid white;"
+                            "border: 0.2px solid black;"
                             "border-radius: 5px;"
                             "padding: 10px;"
                             "}");
 
     /*ui->statusbar_2->setStyleSheet("QGroupBox "
                                 "{"
-                                "border: 0.5px solid white;"
+                                "border: 0.5px solid black;"
                                 "border-radius: 5px;"
                                 "padding: 10px;"
                                 "}");
 
     ui->sendfilebar->setStyleSheet("QGroupBox "
                                    "{"
-                                   "border: 0.5px solid white;"
+                                   "border: 0.5px solid black;"
                                    "border-radius: 5px;"
                                    "padding: 10px;"
                                    "}");
 
     ui->commandoutbar->setStyleSheet("QGroupBox "
                                    "{"
-                                   "border: 0.5px solid white;"
+                                   "border: 0.5px solid black;"
                                    "border-radius: 5px;"
                                    "padding: 10px;"
                                    "}");
 
     ui->receiveconfiguration->setStyleSheet("QGroupBox "
                                 "{"
-                                "border: 0.5px solid white;"
+                                "border: 0.5px solid black;"
                                 "border-radius: 5px;"
                                 "padding: 10px;"
                                 "}");
 
     ui->receivedatabar->setStyleSheet("QGroupBox "
                                 "{"
-                                "border: 0.5px solid white;"
+                                "border: 0.5px solid black;"
                                 "border-radius: 5px;"
                                 "padding: 10px;"
                                 "}");
 
     ui->receiveprocess->setStyleSheet("QGroupBox "
                                 "{"
-                                "border: 0.5px solid white;"
+                                "border: 0.5px solid black;"
                                 "border-radius: 5px;"
                                 "padding: 10px;"
                                 "}");
 
     ui->receivestatus->setStyleSheet("QGroupBox "
                                 "{"
-                                "border: 0.5px solid white;"
+                                "border: 0.5px solid black;"
                                 "border-radius: 5px;"
                                 "padding: 10px;"
                                 "}");*/
@@ -236,11 +236,6 @@ void MainWindow::readHexDatFile(const QString &filename, QByteArray &dataBuffer)
 
         qDebug() << "文件大小：" << file.size();
         qDebug() << "allData 大小：" << dataBuffer.size();
-
-        if (file.size() == dataBuffer.size())
-        {
-            ui->outTextEdit->append("<font color='green'>文件读取成功");
-        }
     }
     else
     {
@@ -811,7 +806,7 @@ void MainWindow::on_confirmfilename_clicked()
     if (outputFile->open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
         QMessageBox::information(this, "提示", "文件已创建：" + currentFilePath);
-        ui->receivestatusTextEdit->append(QString("<font color='white'>文件保存路径：%1</font>").arg(currentFilePath));
+        ui->receivestatusTextEdit->append(QString("<font color='black'>文件保存路径：%1</font>").arg(currentFilePath));
         ui->receiveprocess->setEnabled(true);
         ui->receivestatusTextEdit->append("<font color='green'>文件准备就绪，等待开始收集数据</font>");
     }
@@ -855,14 +850,14 @@ void MainWindow::on_starttosave_clicked()
 
     fileSwitchTimer->start(timeInterval * 1000);
     countdownTimer->start(1000);
-    ui->receivestatusTextEdit->append(QString("<font color='white'>文件切换定时器已启动，间隔：%1 秒</font>").arg(timeInterval));
+    ui->receivestatusTextEdit->append(QString("<font color='black'>文件切换定时器已启动，间隔：%1 秒</font>").arg(timeInterval));
     }
     else
     {
         currentFileReceived = 0;
         ui->receiveprogress->setRange(0, 100);
         ui->receiveprogress->setValue(0);
-        ui->receivestatusTextEdit->append(QString("<font color='white'>文件大小分割已启动，阈值：%1 MB</font>")
+        ui->receivestatusTextEdit->append(QString("<font color='black'>文件大小分割已启动，阈值：%1 MB</font>")
                                               .arg(splitSizeBytes / 1024.0 / 1024.0, 0, 'f', 2));
     }
 }
@@ -964,6 +959,9 @@ void MainWindow::switchToNewFile()
 
 void MainWindow::onDataReceived()
 {
+    static qint64 lastUpdateTime = 0;
+    const int UPDATE_INTERVAL = 100;
+
     if (!isCollecting || !outputFile || !outputFile->isOpen())
         return;
 
@@ -1096,7 +1094,7 @@ void MainWindow::on_endlisten_clicked()
                                                   .arg(remaining / 1024.0, 0, 'f', 2));
         }
         QMessageBox::information(this, "完成", "数据已全部保存至：" + currentFilePath);
-        ui->receivestatusTextEdit->append(QString("<font color='white'>文件保存路径：%1</font>").arg(currentFilePath));
+        ui->receivestatusTextEdit->append(QString("<font color='black'>文件保存路径：%1</font>").arg(currentFilePath));
         QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(currentFilePath).absolutePath()));
     }
 
@@ -1104,6 +1102,12 @@ void MainWindow::on_endlisten_clicked()
     countdownTimer->stop();
     ui->receiveprogress->setValue(0);
     ui->receivestatusTextEdit->append("<font color='red'>接收已停止，缓冲区已清空</font>");
+    ui->receivestatusTextEdit->append("=============================");
+}
+
+void MainWindow::on_receive_data_clear_clicked()
+{
+    ui->receivedata->clear();
 }
 
 
@@ -3078,15 +3082,6 @@ void MainWindow::on_fineDacButton_clicked()
 
 //额外存在的参数（功能尚未验证）
 
-
-
-
-
-
-
-
-
-
 void MainWindow::on_FEE_num_textChanged(const QString &arg1)
 {
     bool isInt;
@@ -3100,4 +3095,6 @@ void MainWindow::on_FEE_num_textChanged(const QString &arg1)
     key1 = "FEE_NUM";
     value1 = QString::number(inputValue);
 }
+
+
 
