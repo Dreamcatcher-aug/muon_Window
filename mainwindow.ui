@@ -30,7 +30,7 @@
      </size>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>5</number>
     </property>
     <widget class="QWidget" name="command_and_send">
      <attribute name="title">
@@ -4763,12 +4763,34 @@
         <item>
          <widget class="QLabel" name="label_114">
           <property name="text">
-           <string>the number off FEE:</string>
+           <string>Quantity of FEE: </string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLineEdit" name="FEE_num"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>70</y>
+         <width>191</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_135">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>FEE Board Number: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="FEE_SEND_NUM"/>
         </item>
        </layout>
       </widget>

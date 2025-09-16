@@ -1516,6 +1516,7 @@ bool MainWindow::OutputParatable(const QString& path, int chipCount)
         sw << QString("# CHIP%1 #").arg(chipNum) << Qt::endl;
 
         sw << QString("%1     -     %2").arg(key1).arg(value1) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key2).arg(value2) << Qt::endl;
 
         foreach (int id, sortedIds)
         {
@@ -3086,15 +3087,43 @@ void MainWindow::on_FEE_num_textChanged(const QString &arg1)
 {
     bool isInt;
     uint inputValue = arg1.toUInt(&isInt);
-    if (!isInt)
+    if (inputValue >= 100)
     {
-        ui->outTextEdit->append("<font color='red'>Rst column Delay输入无效，请输入非负整数</font>");
+        ui->outTextEdit->append("<font color='red'>Quantity of FEE输入无效，不能输入三位数及以上</font>");
         return;
     }
 
-    key1 = "FEE_NUM";
-    value1 = QString::number(inputValue);
+    if (inputValue < 10)
+    {
+        value1 = QString("%1").arg(inputValue, 2, 10, QChar('0'));
+    }
+    else
+    {
+        value1 = QString::number(inputValue);
+    }
 }
 
 
+
+
+void MainWindow::on_FEE_SEND_NUM_textChanged(const QString &arg1)
+{
+    bool isInt;
+    uint inputValue = arg1.toUInt(&isInt);
+    if (inputValue >= 100)
+    {
+        ui->outTextEdit->append("<font color='red'>FEE Board Number输入无效，不能输入三位数及以上</font>");
+        return;
+    }
+
+    if (inputValue < 10)
+    {
+        value1 = QString("%1").arg(inputValue, 2, 10, QChar('0'));
+    }
+    else
+    {
+        value1 = QString::number(inputValue);
+    }
+
+}
 

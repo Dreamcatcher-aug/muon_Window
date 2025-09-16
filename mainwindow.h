@@ -133,6 +133,8 @@ private slots:
 
     void on_receive_data_clear_clicked();
 
+    void on_FEE_SEND_NUM_textChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;
@@ -171,8 +173,10 @@ private:
     QString fileDic;
 
     //额外参数
-    QString key1="01";
-    QString value1="FEE_NUM";
+    QString key1="Quantity of FEE";
+    QString value1="01";
+    QString key2="FEE Board Number";
+    QString value2="00";
 };
 
 
