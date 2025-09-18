@@ -12,3 +12,7 @@
 		—— Optimized interface layout
   		—— Fix known issues
 		—— Add a clear button on the acceptance page 
+***
+	v1.2.4  2025.9.18
+ 		——新增部分参数配置
+   		——新增部分参数记录功能   
