@@ -70,7 +70,6 @@ private slots:
     bool OutputParabitblock(const QString& path);
     bool OutputParamDat(const QString& path, int chipCount);
     quint32 gray2bin(quint32 gray);
-
     void on_Sel_Temp_checkStateChanged(const Qt::CheckState &arg1);
     void on_trig_dac_value_textChanged(const QString &arg1);
     void on_triggerExt_checkStateChanged(const Qt::CheckState &arg1);
@@ -128,12 +127,19 @@ private slots:
     void on_flagTdcExt_enable_checkStateChanged(const Qt::CheckState &arg1);
     void on_fee_on_clicked();
     void on_fee_off_clicked();
-
     void on_FEE_num_textChanged(const QString &arg1);
-
     void on_receive_data_clear_clicked();
-
     void on_FEE_SEND_NUM_textChanged(const QString &arg1);
+    void on_chip_num_input_textChanged(const QString &arg1);
+    void on_Trigger_and_coincidence1_currentIndexChanged(int index);
+    void on_Trigger_and_coincidence2_currentIndexChanged(int index);
+    void on_Trigger_and_coincidence3_currentIndexChanged(int index);
+    void on_slow_rate_currentIndexChanged(int index);
+    void on_probe_and_register_choose_currentIndexChanged(int index);
+
+    void on_sync_speed_currentIndexChanged(int index);
+
+    void on_module_choose_currentIndexChanged(int index);
 
 private:
     Ui::MainWindow *ui;
@@ -173,10 +179,26 @@ private:
     QString fileDic;
 
     //额外参数
-    QString key1="Quantity of FEE";
-    QString value1="01";
+    QString key1="Quantity of FEEs";
+    int value1;
     QString key2="FEE Board Number";
-    QString value2="00";
+    int value2;
+    QString key3="Quantity of Chips";
+    int chipCount;
+    QString key4="Trigger and coincidence 1";
+    int value4;
+    QString key5="Trigger and coincidence 2";
+    int value5;
+    QString key6="Trigger and coincidence 3";
+    int value6;
+    QString key7="slow rate";
+    int value7;
+    QString key8="sync speed";
+    int value8;
+    QString key9="probe and register choose";
+    int value9;
+    QString key10="module choose";
+    int value10;
 };
 
 

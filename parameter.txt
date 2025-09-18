@@ -1,0 +1,105 @@
+ paramSettings["Sel_Temp_sensor_to_ADC_GC"] = 0;
+    paramSettings["NC"] = 1;
+    paramSettings["TRIG_EXT"] = 2;
+    paramSettings["FLAG_TDC_EXT"] = 3;
+    paramSettings["START_RAMP_ADC_EXT"] = 4;
+    paramSettings["START_RAMP_TDC_EXT"] = 5;
+    paramSettings["ADC_GRAY"] = 6;
+    paramSettings["CHIPID"] = 7;
+    paramSettings["PROBE_OTA"] = 8;
+    paramSettings["ENABLE_ANALOGUE_OUTPUT"] = 9;
+    paramSettings["disable_ANALOGUE_OUTPUT_PP"] = 10;    //
+    paramSettings["NC2"] = 11;
+    paramSettings["EN_OR36"] = 12;
+    paramSettings["ADC_RAMP_SLOPE"] = 13;
+    paramSettings["ADC_RAMP_CURRENT_SOURCE"] = 14;
+    paramSettings["ADC_RAMP_INTEGRATOR"] = 15;
+    paramSettings["EN_input_dac"] = 16;
+    paramSettings["GC_8_bit_DAC_reference"] = 17;
+    for (int i = 0; i < 36; i++)
+    {
+        QString key = QString("INDAC%1").arg(i);
+        paramSettings[key] = i + 18;
+    } 
+    paramSettings["LG_PA_bias"] = 54;
+    paramSettings["High_Gain_PreAmplifier"] = 55;
+    paramSettings["EN_High_Gain_PA"] = 56;
+    paramSettings["Low_Gain_PreAmplifier"] = 57;
+    paramSettings["EN_Low_Gain_PA"] = 58;
+    paramSettings["Fast_Shaper_on_LG"] = 59;
+    for (int i = 0; i < 36; i++)
+    {
+        QString key = QString("PREAMP_GAIN%1").arg(i);
+        paramSettings[key] = i + 60;
+    }
+    paramSettings["ENABLE_LG_SS_PP"] = 96;
+    paramSettings["EN_Low_Gain_Slow_Shaper"] = 97;
+    paramSettings["LG_SS_TIME_CONSTANT"] = 98;//    2025.8.15
+    paramSettings["ENABLE_HG_SS_PP"] = 99;
+    paramSettings["ENABLE_HG_SS"] = 100;
+    paramSettings["HG_SS_TIME_CONSTANT"] = 101;
+    paramSettings["FS_FOLLOWER_PP"] = 102;
+    paramSettings["EN_FS"] = 103;
+    paramSettings["FS_PP"] = 104;
+    paramSettings["BACKUP_SCA"] = 105;
+    paramSettings["SCA_PP"] = 106;
+    paramSettings["GC_Temp_sensor_high_current"] = 107;
+    paramSettings["PP_Temp"] = 108;
+    paramSettings["EN_Temp"] = 109;
+    paramSettings["BANDGAP_PP"] = 110;    
+    paramSettings["EN_BANDGAP"] = 111;//    2025.8.17
+    paramSettings["EN_DAC1"] = 112;
+    paramSettings["DAC1_PP"] = 113;
+    paramSettings["EN_DAC2"] = 114;
+    paramSettings["PP_DAC2"] = 115;
+    paramSettings["TRIG_DAC"] = 116;
+    paramSettings["GAIN_DAC"] = 117;
+    paramSettings["TDC_RAMP_SLOPE_GC"] = 118;
+    paramSettings["TDC_RAMP_EN"] = 119;
+    paramSettings["TDC_RAMP_PP"] = 120;
+    paramSettings["ADC_DISCRI_PP"] = 121;
+    paramSettings["GAIN_SELECT_DISCRI_PP"] = 122;
+    paramSettings["AUTO_GAIN"] = 123;
+    paramSettings["GAIN_SELECT"] = 124;
+    paramSettings["ADC_EXT_INPUT"] = 125;
+    paramSettings["SWITCH_TDC_ON"] = 126;
+    paramSettings["DISCRIMINATOR_MASK1"] = 127;
+    paramSettings["DISCRIMINATOR_MASK2"] = 128;      
+    paramSettings["Discri_Delay_Vref_I_source_EN"] = 129;
+    paramSettings["Discri_Delay_Vref_I_source_PP"] = 130;
+    paramSettings["DELAY_TRIGGER"] = 131;
+
+
+
+
+    for (int i = 0; i < 36; i++)
+    {
+        QString key = QString("DISCRI_4BIT_ADJUST%1").arg(i);
+        paramSettings[key] = i + 132;
+    }
+
+
+
+    paramSettings["TRIG_DISCRI_PP"] = 168;
+    paramSettings["DAC_4BIT_PP"] = 169;
+    paramSettings["DISCRI_DELAY_PP"] = 170;
+    paramSettings["NC3"] = 171;
+    paramSettings["DELAY_VALIDHOLD_PP"] = 172;
+    paramSettings["DELAY_VALIDHOLD"] = 173;
+    paramSettings["DELAY_RSTCOL_PP"] = 174;
+    paramSettings["DELAY_RSTCOL"] = 175;
+    paramSettings["EN_LVDS_receiver_NoTrig"] = 176;
+    paramSettings["PP_LVDS_receiver_NoTrig"] = 177;
+    paramSettings["EN_LVDS_receiver_ValEvt"] = 178;
+    paramSettings["PP_LVDS_receiver_ValEvt"] = 179;
+    paramSettings["EN_LVDS_receiver_TrigExt"] = 180;
+    paramSettings["PP_LVDS_receiver_TrigExt"] = 181;
+    paramSettings["CLOCK_LVDS_RECEIVE"] = 182;
+    paramSettings["POD"] = 183;
+    paramSettings["END_READOUT"] = 184;
+    paramSettings["START_READOUT"] = 185;
+    paramSettings["CHIPSAT"] = 186;
+    paramSettings["TRANSMITON2"] = 187;
+    paramSettings["TRANSMITON1"] = 188;
+    paramSettings["DOUT2"] = 189;
+    paramSettings["DOUT1"] = 190;

@@ -36,56 +36,6 @@ MainWindow::MainWindow(QWidget *parent)
                             "padding: 10px;"
                             "}");
 
-    /*ui->statusbar_2->setStyleSheet("QGroupBox "
-                                "{"
-                                "border: 0.5px solid black;"
-                                "border-radius: 5px;"
-                                "padding: 10px;"
-                                "}");
-
-    ui->sendfilebar->setStyleSheet("QGroupBox "
-                                   "{"
-                                   "border: 0.5px solid black;"
-                                   "border-radius: 5px;"
-                                   "padding: 10px;"
-                                   "}");
-
-    ui->commandoutbar->setStyleSheet("QGroupBox "
-                                   "{"
-                                   "border: 0.5px solid black;"
-                                   "border-radius: 5px;"
-                                   "padding: 10px;"
-                                   "}");
-
-    ui->receiveconfiguration->setStyleSheet("QGroupBox "
-                                "{"
-                                "border: 0.5px solid black;"
-                                "border-radius: 5px;"
-                                "padding: 10px;"
-                                "}");
-
-    ui->receivedatabar->setStyleSheet("QGroupBox "
-                                "{"
-                                "border: 0.5px solid black;"
-                                "border-radius: 5px;"
-                                "padding: 10px;"
-                                "}");
-
-    ui->receiveprocess->setStyleSheet("QGroupBox "
-                                "{"
-                                "border: 0.5px solid black;"
-                                "border-radius: 5px;"
-                                "padding: 10px;"
-                                "}");
-
-    ui->receivestatus->setStyleSheet("QGroupBox "
-                                "{"
-                                "border: 0.5px solid black;"
-                                "border-radius: 5px;"
-                                "padding: 10px;"
-                                "}");*/
-
-
     socket = new QTcpSocket(this);
     fileSwitchTimer = new QTimer(this);
     countdownTimer = new QTimer(this);
@@ -124,7 +74,6 @@ MainWindow::MainWindow(QWidget *parent)
         {
             connect(valueEdit, &QLineEdit::textChanged, this, &MainWindow::onInputDACChanged);
         }
-
         QCheckBox *enableBox = findChild<QCheckBox*>(QString("inputdac%1_enable").arg(i));
         if (enableBox)
         {
@@ -139,7 +88,6 @@ MainWindow::MainWindow(QWidget *parent)
         {
             connect(valueEdit, &QLineEdit::textChanged, this, &MainWindow::onPreampChanged);
         }
-
         QCheckBox *checkBox = findChild<QCheckBox*>(QString("preampCheck_%1").arg(i));
         if (checkBox)
         {
@@ -179,6 +127,7 @@ void MainWindow::on_connect_clicked()
     QString IP=ui->ipLineEdit->text();
     QString port=ui->portLineEdit->text();
     socket->connectToHost(QHostAddress(IP),port.toShort());
+
     connect(socket,&QTcpSocket::connected,[this]()
             {
                 QMessageBox::information(this,"连接提示","连接服务器成功");
@@ -526,7 +475,6 @@ void MainWindow::on_fee_on_clicked()
     }
 }
 
-
 void MainWindow::on_fee_off_clicked()
 {
     QByteArray fixedData;
@@ -551,7 +499,6 @@ void MainWindow::on_fee_off_clicked()
         ui->commandTextEdit->append("发送内容（十六进制）：" + hexStr);
     }
 }
-
 
 void MainWindow::on_ACQ_start_clicked()
 {
@@ -1420,7 +1367,7 @@ int MainWindow::transformToBytes(QByteArray &bitBlock)
 
 void MainWindow::on_debug_button_clicked()
 {
-    int chipCount = ui->chip_num_input->value();
+    chipCount = ui->chip_num_input->value();
     if (chipCount <= 0)
     {
         QMessageBox::warning(this, "警告", "芯片数量必须大于0");
@@ -1517,6 +1464,13 @@ bool MainWindow::OutputParatable(const QString& path, int chipCount)
 
         sw << QString("%1     -     %2").arg(key1).arg(value1) << Qt::endl;
         sw << QString("%1     -     %2").arg(key2).arg(value2) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key3).arg(chipCount) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key4).arg(value4) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key5).arg(value5) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key6).arg(value6) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key7).arg(value7) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key8).arg(value8) << Qt::endl;
+        sw << Qt::endl;
 
         foreach (int id, sortedIds)
         {
@@ -3083,47 +3037,227 @@ void MainWindow::on_fineDacButton_clicked()
 
 //额外存在的参数（功能尚未验证）
 
+//AC
 void MainWindow::on_FEE_num_textChanged(const QString &arg1)
 {
     bool isInt;
     uint inputValue = arg1.toUInt(&isInt);
-    if (inputValue >= 100)
+    if (inputValue >= 256)
     {
-        ui->outTextEdit->append("<font color='red'>Quantity of FEE输入无效，不能输入三位数及以上</font>");
+        QMessageBox::warning(this, "输入错误", "Quantity of FEE应小于256",QMessageBox::Ok);
         return;
-    }
-
-    if (inputValue < 10)
-    {
-        value1 = QString("%1").arg(inputValue, 2, 10, QChar('0'));
     }
     else
     {
-        value1 = QString::number(inputValue);
+        value1 = inputValue;
     }
 }
 
-
-
-
+//CC
 void MainWindow::on_FEE_SEND_NUM_textChanged(const QString &arg1)
 {
     bool isInt;
     uint inputValue = arg1.toUInt(&isInt);
-    if (inputValue >= 100)
+    if (inputValue >= 256)
     {
-        ui->outTextEdit->append("<font color='red'>FEE Board Number输入无效，不能输入三位数及以上</font>");
+        QMessageBox::warning(this, "输入错误", "FEE Board Number应小于256",QMessageBox::Ok);
         return;
-    }
-
-    if (inputValue < 10)
-    {
-        value1 = QString("%1").arg(inputValue, 2, 10, QChar('0'));
     }
     else
     {
-        value1 = QString::number(inputValue);
+        value2 = inputValue;
     }
+}
 
+//13
+void MainWindow::on_chip_num_input_textChanged(const QString &arg1)
+{
+    bool isInt;
+    uint inputValue = arg1.toUInt(&isInt);
+    chipCount = inputValue;
+}
+
+//0C
+void MainWindow::on_Trigger_and_coincidence1_currentIndexChanged(int index)
+{
+    uint inputValue = 0;
+    switch (index)
+    {
+    case 0:
+        inputValue = 7;
+        break;
+    case 1:
+        inputValue = 4;
+        break;
+    case 2:
+        inputValue = 1;
+        break;
+    case 3:
+        inputValue = 2;
+        break;
+    case 4:
+        inputValue = 3;
+        break;
+    case 5:
+        inputValue = 5;
+        break;
+    case 6:
+        inputValue = 0;
+        break;
+    case 7:
+        inputValue = 6;
+        break;
+    }
+    value4 = inputValue;
+}
+
+//19
+void MainWindow::on_Trigger_and_coincidence2_currentIndexChanged(int index)
+{
+    uint inputValue = 0;
+    switch (index)
+    {
+    case 0:
+        inputValue = 228;
+        break;
+    case 1:
+        inputValue = 100;
+        break;
+    }
+    value5 = inputValue;
+}
+
+//0e
+void MainWindow::on_Trigger_and_coincidence3_currentIndexChanged(int index)
+{
+    uint inputValue = 0;
+    switch (index)
+    {
+    case 0:
+        inputValue = 1;
+        break;
+    case 1:
+        inputValue = 2;
+        break;
+    case 2:
+        inputValue = 3;
+        break;
+    case 3:
+        inputValue = 4;
+        break;
+    case 4:
+        inputValue = 5;
+        break;
+    case 5:
+        inputValue = 6;
+        break;
+    case 6:
+        inputValue = 7;
+        break;
+    case 7:
+        inputValue = 8;
+        break;
+    case 8:
+        inputValue = 9;
+        break;
+    case 9:
+        inputValue = 10;
+        break;
+    case 10:
+        inputValue = 11;
+        break;
+    case 11:
+        inputValue = 12;
+        break;
+    case 12:
+        inputValue = 13;
+        break;
+    case 13:
+        inputValue = 14;
+        break;
+    case 14:
+        inputValue = 15;
+        break;
+    case 15:
+        inputValue = 16;
+        break;
+    }
+    value6 = inputValue;
+}
+
+//150
+void MainWindow::on_slow_rate_currentIndexChanged(int index)
+{
+    uint inputValue = 0;
+    switch (index)
+    {
+    case 0:
+        inputValue = 0;
+        break;
+    case 1:
+        inputValue = 1;
+        break;
+    case 2:
+        inputValue = 2;
+        break;
+    }
+    value7 = inputValue;
+}
+
+//160
+void MainWindow::on_sync_speed_currentIndexChanged(int index)
+{
+    uint inputValue = 0;
+    switch (index)
+    {
+    case 0:
+        inputValue = 0;
+        break;
+    case 1:
+        inputValue = 1;
+        break;
+    case 2:
+        inputValue = 2;
+        break;
+    }
+    value8 = inputValue;
+}
+
+//060
+void MainWindow::on_probe_and_register_choose_currentIndexChanged(int index)
+{
+    uint inputValue = 0;
+    switch (index)
+    {
+    case 0:
+        inputValue = 0;
+        break;
+    case 1:
+        inputValue = 1;
+        break;
+    }
+    value9 = inputValue;
+}
+
+//050
+void MainWindow::on_module_choose_currentIndexChanged(int index)
+{
+    uint inputValue = 0;
+    switch (index)
+    {
+    case 0:
+        inputValue = 1;
+        break;
+    case 1:
+        inputValue = 0;
+        break;
+    case 2:
+        inputValue = 3;
+        break;
+    case 3:
+        inputValue = 5;
+        break;
+    }
+    value10 = inputValue;
 }
 
