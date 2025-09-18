@@ -44,3 +44,9 @@
 　　该板块的文本框用于输出数据流接收缓冲区工作状态的实时显示。<br>
 　　点击clear按钮可用于清除文本框的内容。
 ## 命令配置页面（尚未完成）
+# 其他说明
+　　1.m_sendTimer->setInterval(2000); 代码中按照要求，用户选择多文件发送时，程序会默认按照2秒间隔发送命令<br>
+　　2.void MainWindow::showDefaultTab(); 程序打开默认进入连接页面，可根据需要修改<br>
+　　3.void MainWindow::readHexDatFile()；当用户选择命令文件之后，程序默认每次读取 4KB，可以根据需要调整<br>
+　　4.const qint64 BLOCK_SIZE = 100*1024*1024; 程序中双缓冲区机制中缓冲区大小设置为100MB,可根据需要修改<br>
+　　5.
