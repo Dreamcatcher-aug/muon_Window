@@ -131,15 +131,14 @@ private slots:
     void on_receive_data_clear_clicked();
     void on_FEE_SEND_NUM_textChanged(const QString &arg1);
     void on_chip_num_input_textChanged(const QString &arg1);
-    void on_Trigger_and_coincidence1_currentIndexChanged(int index);
-    void on_Trigger_and_coincidence2_currentIndexChanged(int index);
-    void on_Trigger_and_coincidence3_currentIndexChanged(int index);
+    void on_Ext_trigger_fpga_enable_checkStateChanged(const Qt::CheckState &arg1);
+    void on_Valid_pin_enable_checkbox_checkStateChanged(const Qt::CheckState &arg1);
+    void on_eraze_enable_checkbox_checkStateChanged(const Qt::CheckState &arg1);
+    void on_auto_trigger_cfg_btn_clicked();
+    void on_eventNumPackage_valueChanged(int arg1);
     void on_slow_rate_currentIndexChanged(int index);
     void on_probe_and_register_choose_currentIndexChanged(int index);
-
     void on_sync_speed_currentIndexChanged(int index);
-
-    void on_module_choose_currentIndexChanged(int index);
 
 private:
     Ui::MainWindow *ui;
@@ -185,20 +184,21 @@ private:
     int value2;
     QString key3="Quantity of Chips";
     int chipCount;
-    QString key4="Trigger and coincidence 1";
-    int value4;
-    QString key5="Trigger and coincidence 2";
-    int value5;
-    QString key6="Trigger and coincidence 3";
-    int value6;
-    QString key7="slow rate";
-    int value7;
-    QString key8="sync speed";
-    int value8;
-    QString key9="probe and register choose";
-    int value9;
-    QString key10="module choose";
-    int value10;
+    QString key4="Ext trigger";
+    int Ext_trigger=0 ;
+    QString key5="Auto trigger";
+    QString key6="sync_delay";
+    quint8 auto_trigger_cfg = 0;
+    int enable;
+    int delay=100;
+    QString key7="Event num of one package";
+    int value7 = 2;
+    QString key8="Slow Clock";
+    int value8 = 0;
+    QString key9="Sync signal";
+    int value9 = 0;
+    QString key10="probe/sc setting";
+    int value10 = 0;
 };
 
 

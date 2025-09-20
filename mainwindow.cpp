@@ -1367,7 +1367,6 @@ int MainWindow::transformToBytes(QByteArray &bitBlock)
 
 void MainWindow::on_debug_button_clicked()
 {
-    chipCount = ui->chip_num_input->value();
     if (chipCount <= 0)
     {
         QMessageBox::warning(this, "警告", "芯片数量必须大于0");
@@ -1465,11 +1464,13 @@ bool MainWindow::OutputParatable(const QString& path, int chipCount)
         sw << QString("%1     -     %2").arg(key1).arg(value1) << Qt::endl;
         sw << QString("%1     -     %2").arg(key2).arg(value2) << Qt::endl;
         sw << QString("%1     -     %2").arg(key3).arg(chipCount) << Qt::endl;
-        sw << QString("%1     -     %2").arg(key4).arg(value4) << Qt::endl;
-        sw << QString("%1     -     %2").arg(key5).arg(value5) << Qt::endl;
-        sw << QString("%1     -     %2").arg(key6).arg(value6) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key4).arg(Ext_trigger) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key5).arg(enable) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key6).arg(delay) << Qt::endl;
         sw << QString("%1     -     %2").arg(key7).arg(value7) << Qt::endl;
         sw << QString("%1     -     %2").arg(key8).arg(value8) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key9).arg(value9) << Qt::endl;
+        sw << QString("%1     -     %2").arg(key10).arg(value10) << Qt::endl;
         sw << Qt::endl;
 
         foreach (int id, sortedIds)
@@ -3078,111 +3079,61 @@ void MainWindow::on_chip_num_input_textChanged(const QString &arg1)
 }
 
 //0C
-void MainWindow::on_Trigger_and_coincidence1_currentIndexChanged(int index)
+void MainWindow::on_Ext_trigger_fpga_enable_checkStateChanged(const Qt::CheckState &arg1)
 {
-    uint inputValue = 0;
-    switch (index)
+    if (arg1 == Qt::Checked)
     {
-    case 0:
-        inputValue = 7;
-        break;
-    case 1:
-        inputValue = 4;
-        break;
-    case 2:
-        inputValue = 1;
-        break;
-    case 3:
-        inputValue = 2;
-        break;
-    case 4:
-        inputValue = 3;
-        break;
-    case 5:
-        inputValue = 5;
-        break;
-    case 6:
-        inputValue = 0;
-        break;
-    case 7:
-        inputValue = 6;
-        break;
+        Ext_trigger += 4;
     }
-    value4 = inputValue;
+    else
+    {
+        if (Ext_trigger >= 4)
+        {
+            Ext_trigger -= 4;
+        }
+    }
+}
+void MainWindow::on_Valid_pin_enable_checkbox_checkStateChanged(const Qt::CheckState &arg1)
+{
+    if (arg1 == Qt::Checked)
+    {
+        Ext_trigger += 2;
+    }
+    else
+    {
+        if (Ext_trigger >= 2)
+        {
+            Ext_trigger -= 2;
+        }
+    }
+}
+void MainWindow::on_eraze_enable_checkbox_checkStateChanged(const Qt::CheckState &arg1)
+{
+    if (arg1 == Qt::Checked)
+    {
+        Ext_trigger += 1;
+    }
+    else
+    {
+        if (Ext_trigger >= 1)
+        {
+            Ext_trigger -= 1;
+        }
+    }
 }
 
 //19
-void MainWindow::on_Trigger_and_coincidence2_currentIndexChanged(int index)
+void MainWindow::on_auto_trigger_cfg_btn_clicked()
 {
-    uint inputValue = 0;
-    switch (index)
-    {
-    case 0:
-        inputValue = 228;
-        break;
-    case 1:
-        inputValue = 100;
-        break;
-    }
-    value5 = inputValue;
+    enable = ui->auto_trigger_checkbox->isChecked() ? 1 : 0;
+    delay = static_cast<int>(ui->sync_delay_num->value());
+    auto_trigger_cfg = static_cast<quint8>((enable << 7) + (delay & 0x7F));
 }
 
 //0e
-void MainWindow::on_Trigger_and_coincidence3_currentIndexChanged(int index)
+void MainWindow::on_eventNumPackage_valueChanged(int arg1)
 {
-    uint inputValue = 0;
-    switch (index)
-    {
-    case 0:
-        inputValue = 1;
-        break;
-    case 1:
-        inputValue = 2;
-        break;
-    case 2:
-        inputValue = 3;
-        break;
-    case 3:
-        inputValue = 4;
-        break;
-    case 4:
-        inputValue = 5;
-        break;
-    case 5:
-        inputValue = 6;
-        break;
-    case 6:
-        inputValue = 7;
-        break;
-    case 7:
-        inputValue = 8;
-        break;
-    case 8:
-        inputValue = 9;
-        break;
-    case 9:
-        inputValue = 10;
-        break;
-    case 10:
-        inputValue = 11;
-        break;
-    case 11:
-        inputValue = 12;
-        break;
-    case 12:
-        inputValue = 13;
-        break;
-    case 13:
-        inputValue = 14;
-        break;
-    case 14:
-        inputValue = 15;
-        break;
-    case 15:
-        inputValue = 16;
-        break;
-    }
-    value6 = inputValue;
+    value7 = arg1;
 }
 
 //150
@@ -3201,7 +3152,7 @@ void MainWindow::on_slow_rate_currentIndexChanged(int index)
         inputValue = 2;
         break;
     }
-    value7 = inputValue;
+    value8 = inputValue;
 }
 
 //160
@@ -3219,8 +3170,11 @@ void MainWindow::on_sync_speed_currentIndexChanged(int index)
     case 2:
         inputValue = 2;
         break;
+    case 3:
+        inputValue = 3;
+        break;
     }
-    value8 = inputValue;
+    value9 = inputValue;
 }
 
 //060
@@ -3236,28 +3190,5 @@ void MainWindow::on_probe_and_register_choose_currentIndexChanged(int index)
         inputValue = 1;
         break;
     }
-    value9 = inputValue;
-}
-
-//050
-void MainWindow::on_module_choose_currentIndexChanged(int index)
-{
-    uint inputValue = 0;
-    switch (index)
-    {
-    case 0:
-        inputValue = 1;
-        break;
-    case 1:
-        inputValue = 0;
-        break;
-    case 2:
-        inputValue = 3;
-        break;
-    case 3:
-        inputValue = 5;
-        break;
-    }
     value10 = inputValue;
 }
-
