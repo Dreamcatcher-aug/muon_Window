@@ -753,7 +753,7 @@ void MainWindow::on_confirmfilename_clicked()
     if (outputFile->open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
         QMessageBox::information(this, "提示", "文件已创建：" + currentFilePath);
-        ui->receivestatusTextEdit->append(QString("<font color='black'>文件保存路径：%1</font>").arg(currentFilePath));
+        ui->receivestatusTextEdit->append(QString("文件保存路径：%1").arg(currentFilePath));
         ui->receiveprocess->setEnabled(true);
         ui->receivestatusTextEdit->append("<font color='green'>文件准备就绪，等待开始收集数据</font>");
     }
@@ -797,14 +797,14 @@ void MainWindow::on_starttosave_clicked()
 
     fileSwitchTimer->start(timeInterval * 1000);
     countdownTimer->start(1000);
-    ui->receivestatusTextEdit->append(QString("<font color='black'>文件切换定时器已启动，间隔：%1 秒</font>").arg(timeInterval));
+    ui->receivestatusTextEdit->append(QString("文件切换定时器已启动，间隔：%1 秒").arg(timeInterval));
     }
     else
     {
         currentFileReceived = 0;
         ui->receiveprogress->setRange(0, 100);
         ui->receiveprogress->setValue(0);
-        ui->receivestatusTextEdit->append(QString("<font color='black'>文件大小分割已启动，阈值：%1 MB</font>")
+        ui->receivestatusTextEdit->append(QString("文件大小分割已启动，阈值：%1 MB")
                                               .arg(splitSizeBytes / 1024.0 / 1024.0, 0, 'f', 2));
     }
 }
@@ -930,7 +930,7 @@ void MainWindow::onDataReceived()
     if (!isWritingA)
     {
         a.append(newData);
-        ui->receivedata->append(QString("<font color='black'>缓冲区a接收中，当前大小：%1 KB</font>")
+        ui->receivedata->append(QString("缓冲区a接收中，当前大小：%1 KB")
                                               .arg(a.size() / 1024.0, 0, 'f', 2));
 
         if (a.size() >= BLOCK_SIZE)
@@ -1041,7 +1041,7 @@ void MainWindow::on_endlisten_clicked()
                                                   .arg(remaining / 1024.0, 0, 'f', 2));
         }
         QMessageBox::information(this, "完成", "数据已全部保存至：" + currentFilePath);
-        ui->receivestatusTextEdit->append(QString("<font color='black'>文件保存路径：%1</font>").arg(currentFilePath));
+        ui->receivestatusTextEdit->append(QString("文件保存路径：%1").arg(currentFilePath));
         QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(currentFilePath).absolutePath()));
     }
 
@@ -1529,8 +1529,20 @@ bool MainWindow::OutputParabitblock(const QString& path)
     }
 
     QTextStream sw(&file);
+
+    sw << "0xAC ";sw << "0x" << QString("%1 ").arg(value1, 2, 16, QChar('0')).toUpper();
+    sw << "0xCC ";sw << "0x" << QString("%1 ").arg(value2, 2, 16, QChar('0')).toUpper();
+    sw << "0x13 ";sw << "0x" << QString("%1 ").arg(chipCount, 2, 16, QChar('0')).toUpper();
+    sw << "0x0C ";sw << "0x" << QString("%1 ").arg(Ext_trigger, 2, 16, QChar('0')).toUpper();
+    sw << "0x19 ";sw << "0x" << QString("%1 ").arg(auto_trigger_cfg, 2, 16, QChar('0')).toUpper();
+    sw << "0x0E ";sw << "0x" << QString("%1 ").arg(value7, 2, 16, QChar('0')).toUpper();
+    sw << "0x15 ";sw << "0x" << QString("%1 ").arg(value8, 2, 16, QChar('0')).toUpper();
+    sw << "0x16 ";sw << "0x" << QString("%1 ").arg(value9, 2, 16, QChar('0')).toUpper();
+    sw << "0x06 ";sw << "0x" << QString("%1 ").arg(value10, 2, 16, QChar('0')).toUpper();
+
     for (int i = 0; i < byteCount; ++i)
     {
+        sw << "0x03 ";
         sw << QString("0x%1 ").arg(static_cast<quint8>(bitBlock[i]), 2, 16, QChar('0')).toUpper();
     }
 
@@ -1572,6 +1584,45 @@ bool MainWindow::OutputParamDat(const QString& path, int chipCount)
     QDataStream out(&file);
     out.setByteOrder(QDataStream::BigEndian);
 
+
+    out << static_cast<quint8>(0xAC);out << static_cast<quint8>(value1);
+    out << static_cast<quint8>(0xCC);out << static_cast<quint8>(value2);
+    out << static_cast<quint8>(0x13);out << static_cast<quint8>(chipCount);
+    for (int i = 0; i < 8; ++i)     //空字节数量，可根据需要修改
+    {
+        out << static_cast<quint8>(0x00);
+    }
+    out << static_cast<quint8>(0x0C);out << static_cast<quint8>(Ext_trigger);
+    for (int i = 0; i < 8; ++i)
+    {
+        out << static_cast<quint8>(0x00);
+    }
+    out << static_cast<quint8>(0x19);out << static_cast<quint8>(auto_trigger_cfg);
+    for (int i = 0; i < 8; ++i)
+    {
+        out << static_cast<quint8>(0x00);
+    }
+    out << static_cast<quint8>(0x0E);out << static_cast<quint8>(value7);
+    for (int i = 0; i < 8; ++i)
+    {
+        out << static_cast<quint8>(0x00);
+    }
+    out << static_cast<quint8>(0x15);out << static_cast<quint8>(value8);
+    for (int i = 0; i < 8; ++i)
+    {
+        out << static_cast<quint8>(0x00);
+    }
+    out << static_cast<quint8>(0x16);out << static_cast<quint8>(value9);
+    for (int i = 0; i < 8; ++i)
+    {
+        out << static_cast<quint8>(0x00);
+    }
+    out << static_cast<quint8>(0x06);out << static_cast<quint8>(value10);
+    for (int i = 0; i < 8; ++i)
+    {
+        out << static_cast<quint8>(0x00);
+    }
+
     while (bitCount + 8 <= totalBits)
     {
         QString byteStr = bitString.mid(bitCount, 8);
@@ -1605,6 +1656,7 @@ bool MainWindow::OutputParamDat(const QString& path, int chipCount)
         out << byteValue;
     }
 
+    out << static_cast<quint8>(0xee);out << static_cast<quint8>(0xee);
     file.close();
     return true;
 }
@@ -2553,7 +2605,6 @@ void MainWindow::onInputDACChanged()
     }
     else if (type == "enable")
     {
-        // 处理使能复选框（CheckBox）逻辑
         QCheckBox *enableBox = qobject_cast<QCheckBox*>(senderObj);
         if (!enableBox) return;
 
@@ -2611,11 +2662,8 @@ void MainWindow::on_dacParaLoad_btn_clicked()
             continue;
         }
 
-        // 计算DAC编码 (code = (4.5 - dacValue) * 255 / 4)
         uint code = static_cast<uint>((4.5 - dacValue) * 255 / 4);
         code = qBound(0U, code, 255U);
-
-        // 计算对应的DAC通道索引 (0-35循环)
         int channel = lineIndex % 36;
         QString key = QString("INDAC%1").arg(channel);
 
@@ -2998,46 +3046,38 @@ void MainWindow::on_fineDacButton_clicked()
     int chnInt = ui->fineDacChnSpinBox->text().toInt(&chnOk);
     uint chn = static_cast<uint>(chnInt);
 
-
-    // 2. 输入合法性校验
     if (!valueOk || !chnOk)
     {
         QMessageBox::warning(this, "输入错误", "请输入有效的数值");
         return;
     }
 
-    // 校验通道号范围（0-35，与36通道系统匹配）
     if (chn < 0 || chn >= 36)
     {
         QMessageBox::warning(this, "通道错误", "通道号必须在0-35范围内");
         return;
     }
 
-    // 校验4位DAC值范围（0-15，因参数名为4BIT）
     if (value > 15)
     {
         QMessageBox::warning(this, "值错误", "DAC值必须在0-15范围内（4位限制）");
         return;
     }
 
-    // 3. 构建参数键名（与现有参数字典匹配）
     QString key = QString("DISCRI_4BIT_ADJUST%1").arg(chn);
 
-    // 4. 检查参数是否存在于配置中
     if (!paramSettings.contains(key))
     {
         ui->outTextEdit->append(QString("<font color='red'>无效参数：%1</font>").arg(key));
         return;
     }
 
-    // 5. 更新参数值到配置字典
-    int paramId = paramSettings[key]; // 获取参数ID
+    int paramId = paramSettings[key];
     setParam(paramId, value);
 }
 
 
-//额外存在的参数（功能尚未验证）
-
+//非03开头的参数（功能尚未验证）
 //AC
 void MainWindow::on_FEE_num_textChanged(const QString &arg1)
 {
@@ -3051,6 +3091,8 @@ void MainWindow::on_FEE_num_textChanged(const QString &arg1)
     else
     {
         value1 = inputValue;
+        value1_hex.clear();
+        value1_hex.append(static_cast<char>(value1 & 0xFF));
     }
 }
 
@@ -3067,6 +3109,8 @@ void MainWindow::on_FEE_SEND_NUM_textChanged(const QString &arg1)
     else
     {
         value2 = inputValue;
+        value2_hex.clear();
+        value2_hex.append(static_cast<char>(value2 & 0xFF));
     }
 }
 
@@ -3076,6 +3120,34 @@ void MainWindow::on_chip_num_input_textChanged(const QString &arg1)
     bool isInt;
     uint inputValue = arg1.toUInt(&isInt);
     chipCount = inputValue;
+    chipCount_hex.clear();
+    chipCount_hex_send.clear();
+    chipCount_hex.append(static_cast<char>(chipCount & 0xFF));
+    chipCount_hex_send.append(static_cast<char>(0x13));
+    chipCount_hex_send.append(static_cast<char>(chipCount & 0xFF));
+}
+
+void MainWindow::on_chip_number_send_btn_clicked()
+{
+    QByteArray sendData;
+    sendData.append(static_cast<char>(chipCount & 0xFF));
+    sendData.append(static_cast<char>(0x13));
+    qint64 bytesSent = socket->write(sendData);
+
+    if (bytesSent == -1)
+    {
+        ui->set_send_status->append("<font color='red'>发送芯片数量失败</font>");
+    }
+    else
+    {
+        QString hexStr;
+        for (int i = 0; i < 1; ++i)
+        {
+            unsigned char c = static_cast<unsigned char>(sendData[i]);
+            hexStr += QString("%1 ").arg(c, 2, 16, QChar('0')).toUpper();
+        }
+        ui->set_send_status->append("发送芯片数量成功（十六进制）：" + hexStr );
+    }
 }
 
 //0C
@@ -3092,6 +3164,11 @@ void MainWindow::on_Ext_trigger_fpga_enable_checkStateChanged(const Qt::CheckSta
             Ext_trigger -= 4;
         }
     }
+    Ext_trigger_hex.clear();
+    Ext_trigger_hex_send.clear();
+    Ext_trigger_hex.append(static_cast<char>(Ext_trigger & 0xFF));
+    Ext_trigger_hex_send.append(static_cast<char>(0x0C));
+    Ext_trigger_hex_send.append(static_cast<char>(Ext_trigger & 0xFF));
 }
 void MainWindow::on_Valid_pin_enable_checkbox_checkStateChanged(const Qt::CheckState &arg1)
 {
@@ -3106,6 +3183,11 @@ void MainWindow::on_Valid_pin_enable_checkbox_checkStateChanged(const Qt::CheckS
             Ext_trigger -= 2;
         }
     }
+    Ext_trigger_hex.clear();
+    Ext_trigger_hex_send.clear();
+    Ext_trigger_hex.append(static_cast<char>(Ext_trigger & 0xFF));
+    Ext_trigger_hex_send.append(static_cast<char>(0x0C));
+    Ext_trigger_hex_send.append(static_cast<char>(Ext_trigger & 0xFF));
 }
 void MainWindow::on_eraze_enable_checkbox_checkStateChanged(const Qt::CheckState &arg1)
 {
@@ -3120,7 +3202,36 @@ void MainWindow::on_eraze_enable_checkbox_checkStateChanged(const Qt::CheckState
             Ext_trigger -= 1;
         }
     }
+    Ext_trigger_hex.clear();
+    Ext_trigger_hex_send.clear();
+    Ext_trigger_hex.append(static_cast<char>(Ext_trigger & 0xFF));
+    Ext_trigger_hex_send.append(static_cast<char>(0x0C));
+    Ext_trigger_hex_send.append(static_cast<char>(Ext_trigger & 0xFF));
 }
+
+void MainWindow::on_Ext_trigger_send_btn_clicked()
+{
+    QByteArray sendData;
+    sendData.append(static_cast<char>(Ext_trigger & 0xFF));
+    sendData.append(static_cast<char>(0x0C));
+    qint64 bytesSent = socket->write(sendData);
+
+    if (bytesSent == -1)
+    {
+        ui->set_send_status->append("<font color='red'>发送Ext_trigger失败</font>");
+    }
+    else
+    {
+        QString hexStr;
+        for (int i = 0; i < 1; ++i)
+        {
+            unsigned char c = static_cast<unsigned char>(sendData[i]);
+            hexStr += QString("%1 ").arg(c, 2, 16, QChar('0')).toUpper();
+        }
+        ui->set_send_status->append("发送Ext_trigger成功（十六进制）：" + hexStr );
+    }
+}
+
 
 //19
 void MainWindow::on_auto_trigger_cfg_btn_clicked()
@@ -3128,13 +3239,70 @@ void MainWindow::on_auto_trigger_cfg_btn_clicked()
     enable = ui->auto_trigger_checkbox->isChecked() ? 1 : 0;
     delay = static_cast<int>(ui->sync_delay_num->value());
     auto_trigger_cfg = static_cast<quint8>((enable << 7) + (delay & 0x7F));
+    auto_trigger_cfgr_hex.clear();
+    auto_trigger_cfgr_hex_send.clear();
+    auto_trigger_cfgr_hex.append(static_cast<char>(auto_trigger_cfg));
+    chipCount_hex_send.append(static_cast<char>(0x19));
+    chipCount_hex_send.append(static_cast<char>(auto_trigger_cfg));
+}
+
+void MainWindow::on_auto_trigger_cfgr_send_btn_clicked()
+{
+    QByteArray sendData;
+    sendData.append(static_cast<char>(auto_trigger_cfg));
+    sendData.append(static_cast<char>(0x19));
+    qint64 bytesSent = socket->write(sendData);
+
+    if (bytesSent == -1)
+    {
+        ui->set_send_status->append("<font color='red'>发送auto_trigger_cfg失败</font>");
+    }
+    else
+    {
+        QString hexStr;
+        for (int i = 0; i < 1; ++i)
+        {
+            unsigned char c = static_cast<unsigned char>(sendData[i]);
+            hexStr += QString("%1 ").arg(c, 2, 16, QChar('0')).toUpper();
+        }
+        ui->set_send_status->append("发送auto_trigger_cfg成功（十六进制）：" + hexStr );
+    }
 }
 
 //0e
 void MainWindow::on_eventNumPackage_valueChanged(int arg1)
 {
     value7 = arg1;
+    value7_hex.clear();
+    value7_hex_send.clear();
+    value7_hex.append(static_cast<char>(value7 & 0xFF));
+    value7_hex_send.append(static_cast<char>(0x0E));
+    value7_hex_send.append(static_cast<char>(value7 & 0xFF));
 }
+
+void MainWindow::on_eventNumPackage_send_btn_clicked()
+{
+    QByteArray sendData;
+    sendData.append(static_cast<char>(value7 & 0xFF));
+    sendData.append(static_cast<char>(0x0E));
+    qint64 bytesSent = socket->write(sendData);
+
+    if (bytesSent == -1)
+    {
+        ui->set_send_status->append("<font color='red'>发送eventNumPackage失败</font>");
+    }
+    else
+    {
+        QString hexStr;
+        for (int i = 0; i < 1; ++i)
+        {
+            unsigned char c = static_cast<unsigned char>(sendData[i]);
+            hexStr += QString("%1 ").arg(c, 2, 16, QChar('0')).toUpper();
+        }
+        ui->set_send_status->append("发送eventNumPackage成功（十六进制）：" + hexStr );
+    }
+}
+
 
 //150
 void MainWindow::on_slow_rate_currentIndexChanged(int index)
@@ -3153,6 +3321,34 @@ void MainWindow::on_slow_rate_currentIndexChanged(int index)
         break;
     }
     value8 = inputValue;
+    value8_hex.clear();
+    value8_hex_send.clear();
+    value8_hex.append(static_cast<char>(value8 & 0xFF));
+    value8_hex_send.append(static_cast<char>(0x15));
+    value8_hex_send.append(static_cast<char>(value8 & 0xFF));
+}
+
+void MainWindow::on_slow_rate_send_btn_clicked()
+{
+    QByteArray sendData;
+    sendData.append(static_cast<char>(value8 & 0xFF));
+    sendData.append(static_cast<char>(0x15));
+    qint64 bytesSent = socket->write(sendData);
+
+    if (bytesSent == -1)
+    {
+        ui->set_send_status->append("<font color='red'>发送slow_rate失败</font>");
+    }
+    else
+    {
+        QString hexStr;
+        for (int i = 0; i < 1; ++i)
+        {
+            unsigned char c = static_cast<unsigned char>(sendData[i]);
+            hexStr += QString("%1 ").arg(c, 2, 16, QChar('0')).toUpper();
+        }
+        ui->set_send_status->append("发送slow_rate成功（十六进制）：" + hexStr );
+    }
 }
 
 //160
@@ -3175,6 +3371,34 @@ void MainWindow::on_sync_speed_currentIndexChanged(int index)
         break;
     }
     value9 = inputValue;
+    value9_hex.clear();
+    value9_hex_send.clear();
+    value9_hex.append(static_cast<char>(value9 & 0xFF));
+    value9_hex_send.append(static_cast<char>(0x16));
+    value9_hex_send.append(static_cast<char>(value9 & 0xFF));
+}
+
+void MainWindow::on_sync_speed_send_btn_clicked()
+{
+    QByteArray sendData;
+    sendData.append(static_cast<char>(value9 & 0xFF));
+    sendData.append(static_cast<char>(0x16));
+    qint64 bytesSent = socket->write(sendData);
+
+    if (bytesSent == -1)
+    {
+        ui->set_send_status->append("<font color='red'>发送sync_speed失败</font>");
+    }
+    else
+    {
+        QString hexStr;
+        for (int i = 0; i < 1; ++i)
+        {
+            unsigned char c = static_cast<unsigned char>(sendData[i]);
+            hexStr += QString("%1 ").arg(c, 2, 16, QChar('0')).toUpper();
+        }
+        ui->set_send_status->append("发送sync_speed成功（十六进制）：" + hexStr );
+    }
 }
 
 //060
@@ -3191,4 +3415,34 @@ void MainWindow::on_probe_and_register_choose_currentIndexChanged(int index)
         break;
     }
     value10 = inputValue;
+    value10_hex.clear();
+    value10_hex_send.clear();
+    value10_hex.append(static_cast<char>(value9 & 0xFF));
+    value10_hex_send.append(static_cast<char>(0x06));
+    value10_hex_send.append(static_cast<char>(value9 & 0xFF));
 }
+
+
+void MainWindow::on_probe_and_register_choose_send_btn_clicked()
+{
+    QByteArray sendData;
+    sendData.append(static_cast<char>(value10 & 0xFF));
+    sendData.append(static_cast<char>(0x06));
+    qint64 bytesSent = socket->write(sendData);
+
+    if (bytesSent == -1)
+    {
+        ui->set_send_status->append("<font color='red'>发送probe_and_register_choose失败</font>");
+    }
+    else
+    {
+        QString hexStr;
+        for (int i = 0; i < 1; ++i)
+        {
+            unsigned char c = static_cast<unsigned char>(sendData[i]);
+            hexStr += QString("%1 ").arg(c, 2, 16, QChar('0')).toUpper();
+        }
+        ui->set_send_status->append("发送probe_and_register_choose成功（十六进制）：" + hexStr);
+    }
+}
+

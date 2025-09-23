@@ -139,6 +139,13 @@ private slots:
     void on_slow_rate_currentIndexChanged(int index);
     void on_probe_and_register_choose_currentIndexChanged(int index);
     void on_sync_speed_currentIndexChanged(int index);
+    void on_chip_number_send_btn_clicked();
+    void on_Ext_trigger_send_btn_clicked();
+    void on_auto_trigger_cfgr_send_btn_clicked();
+    void on_eventNumPackage_send_btn_clicked();
+    void on_slow_rate_send_btn_clicked();
+    void on_sync_speed_send_btn_clicked();
+    void on_probe_and_register_choose_send_btn_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -179,26 +186,42 @@ private:
 
     //额外参数
     QString key1="Quantity of FEEs";
-    int value1;
+    int value1 = 0;
+    QByteArray value1_hex;
     QString key2="FEE Board Number";
-    int value2;
+    int value2 = 0;
+    QByteArray value2_hex;
     QString key3="Quantity of Chips";
-    int chipCount;
+    int chipCount = 1;
+    QByteArray chipCount_hex;
+    QByteArray chipCount_hex_send;
     QString key4="Ext trigger";
     int Ext_trigger=0 ;
+    QByteArray Ext_trigger_hex;
+    QByteArray Ext_trigger_hex_send;
     QString key5="Auto trigger";
     QString key6="sync_delay";
     quint8 auto_trigger_cfg = 0;
     int enable;
     int delay=100;
+    QByteArray auto_trigger_cfgr_hex;
+    QByteArray auto_trigger_cfgr_hex_send;
     QString key7="Event num of one package";
     int value7 = 2;
+    QByteArray value7_hex;
+    QByteArray value7_hex_send;
     QString key8="Slow Clock";
     int value8 = 0;
+    QByteArray value8_hex;
+    QByteArray value8_hex_send;
     QString key9="Sync signal";
     int value9 = 0;
+    QByteArray value9_hex;
+    QByteArray value9_hex_send;
     QString key10="probe/sc setting";
     int value10 = 0;
+    QByteArray value10_hex;
+    QByteArray value10_hex_send;
 };
 
 
