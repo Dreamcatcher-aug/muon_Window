@@ -28,6 +28,7 @@
 #include<QDateTime>
 
 
+
 QT_BEGIN_NAMESPACE
 namespace Ui
 {
@@ -222,6 +223,7 @@ private:
     int value10 = 0;
     QByteArray value10_hex;
     QByteArray value10_hex_send;
+    QTimer *timeoutTimer;
 };
 
 

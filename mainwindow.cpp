@@ -107,7 +107,19 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    {
+        if (socket)
+        {
+            socket->abort();
+            delete socket;
+        }
+        if (timeoutTimer)
+        {
+            timeoutTimer->stop();
+            delete timeoutTimer;
+        }
+        delete ui;
+    }
 }
 
 void MainWindow::showDefaultTab()
@@ -121,26 +133,127 @@ void MainWindow::showDefaultTab()
 //建立TCP连接
 void MainWindow::on_connect_clicked()
 {
+    ui->connect->setEnabled(false);
+    if (socket->state() == QAbstractSocket::ConnectingState ||
+        socket->state() == QAbstractSocket::ConnectedState)
+    {
+        QMessageBox::information(this, "提示", "当前已有连接操作，请等待完成或取消连接后再试");
+        return;
+    }
+
     disconnect(socket, &QTcpSocket::connected, nullptr, nullptr);
     disconnect(socket, &QTcpSocket::disconnected, nullptr, nullptr);
+    disconnect(socket, &QTcpSocket::errorOccurred, nullptr, nullptr);
 
+    ui->outTextEdit->append("tcp连接中，请稍候...");
     QString IP=ui->ipLineEdit->text();
     QString port=ui->portLineEdit->text();
-    socket->connectToHost(QHostAddress(IP),port.toShort());
 
-    connect(socket,&QTcpSocket::connected,[this]()
-            {
-                QMessageBox::information(this,"连接提示","连接服务器成功");
-                ui->outTextEdit->append("<font color='green'>连接提示：服务器连接成功！");
-                ui->sendfilebar->setEnabled(true);
-                ui->ACQ_group_box->setEnabled(true);
-            });
+    bool isIPValid = false;
+    QHostAddress ipAddr;
+
+    if (ipAddr.setAddress(IP))
+    {
+        if (ipAddr.protocol() == QAbstractSocket::IPv4Protocol)
+        {
+            isIPValid = true;
+        }
+        else
+        {
+            QMessageBox::warning(this, "输入错误", "请输入IPv4格式的IP地址（如192.168.1.1）");
+        }
+    }
+    else
+    {
+        QMessageBox::warning(this, "输入错误",QString("IP地址格式无效：%1\n请检查格式（如192.168.1.1）").arg(IP));
+    }
+
+    if (!isIPValid)
+    {
+        ui->connect->setEnabled(true);
+        return;
+    }
+
+    bool isPortValid = false;
+    quint16 portNum = port.toUShort(&isPortValid);
+
+    if (isPortValid && portNum >= 1 && portNum <= 65535)
+    {
+
+    }
+    else
+    {
+        QMessageBox::warning(this, "输入错误",QString("端口号无效：%1\n请输入1-65535之间的整数").arg(port));
+        ui->connect->setEnabled(true);
+        return;
+    }
+
+    socket->connectToHost(ipAddr, portNum);
+
+    timeoutTimer = new QTimer(this);
+    timeoutTimer->setSingleShot(true);
+    timeoutTimer->setInterval(10000);
+
+    connect(timeoutTimer, &QTimer::timeout, this, [this]()
+    {
+        if (socket->state() != QAbstractSocket::ConnectedState)
+        {
+            socket->abort();
+            QString errorMsg = "连接超时（10秒内未响应）";
+            QMessageBox::critical(this, "连接失败", QString("无法连接到服务器：\n%1").arg(errorMsg));
+            ui->outTextEdit->append(QString("<font color='red'><b>连接失败：%1</b></font>").arg(errorMsg));
+            timeoutTimer->deleteLater();
+            timeoutTimer = nullptr;
+        }
+        ui->connect->setEnabled(true);
+    });
+
+    timeoutTimer->start();
+
+
+    connect(socket, &QTcpSocket::connected, [this]()
+    {
+        if (timeoutTimer)
+        {
+            timeoutTimer->stop();
+            timeoutTimer->deleteLater();
+            timeoutTimer = nullptr;
+        }
+        QMessageBox::information(this, "连接提示", "连接服务器成功");
+        ui->outTextEdit->append("<font color='green'>连接提示：服务器连接成功！</font>");
+        ui->sendfilebar->setEnabled(true);
+        ui->ACQ_group_box->setEnabled(true);
+    });
 
     connect(socket,&QTcpSocket::disconnected,[this]()
             {
                 QMessageBox::warning(this,"连接提示","连接异常，网络断开") ;
                 ui->outTextEdit->append("<font color='red'><b>连接提示：服务器断开连接！");
+                ui->sendfilebar->setEnabled(false);
+                ui->ACQ_group_box->setEnabled(false);
+                ui->connect->setEnabled(true);
             });
+
+    connect(socket, &QTcpSocket::errorOccurred, [this](QAbstractSocket::SocketError error)
+    {
+        if (timeoutTimer)
+        {
+            timeoutTimer->stop();
+            timeoutTimer->deleteLater();
+            timeoutTimer = nullptr;
+        }
+
+        QString errorMsg = socket->errorString();
+        if (!(errorMsg.contains("Operation in progress", Qt::CaseInsensitive) || errorMsg.contains("操作正在进行中", Qt::CaseInsensitive)))
+        {
+            QString errorMsg = socket->errorString();
+            QMessageBox::critical(this, "连接失败", QString("无法连接到服务器：\n%1").arg(errorMsg));
+            ui->outTextEdit->append(QString("<font color='red'><b>连接失败：%1</b></font>").arg(errorMsg));
+        }
+        ui->sendfilebar->setEnabled(false);
+        ui->ACQ_group_box->setEnabled(false);
+        ui->connect->setEnabled(true);
+    });
 }
 
 void MainWindow::on_cancel_clicked()
@@ -3422,7 +3535,6 @@ void MainWindow::on_probe_and_register_choose_currentIndexChanged(int index)
     value10_hex_send.append(static_cast<char>(value9 & 0xFF));
 }
 
-
 void MainWindow::on_probe_and_register_choose_send_btn_clicked()
 {
     QByteArray sendData;
@@ -3445,4 +3557,3 @@ void MainWindow::on_probe_and_register_choose_send_btn_clicked()
         ui->set_send_status->append("发送probe_and_register_choose成功（十六进制）：" + hexStr);
     }
 }
-
