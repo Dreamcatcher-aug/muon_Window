@@ -50,7 +50,7 @@
 　　2.void MainWindow::showDefaultTab(); 程序打开默认进入连接页面，可根据需要修改<br>
 　　3.void MainWindow::readHexDatFile()；当用户选择命令文件之后，程序默认每次读取 4KB，可以根据需要调整<br>
 　　4.const qint64 BLOCK_SIZE = 100*1024*1024; 程序中双缓冲区机制中缓冲区大小设置为100MB,可根据需要修改<br>
-　　5.bool MainWindow::OutputParatable(const QString& path, int chipCount)中添加写入语句格式是 sw << QString("%1     -     %2").arg(key1).arg(value1) << Qt::endl;
-	6.bool MainWindow::OutputParabitblock(const QString& path)中添加写入语句的格式是sw << "0xAC ";sw << "0x" << QString("%1 ").arg(value1, 2, 16, QChar('0')).toUpper();
-	7.bool MainWindow::OutputParamDat(const QString& path, int chipCount)中添加写入语句的格式是out << static_cast<quint8>(0xAC);out << static_cast<quint8>(value1);
+　　5.bool MainWindow::OutputParatable(const QString& path, int chipCount)中添加写入语句格式是 sw << QString("%1     -     %2").arg(key1).arg(value1) << Qt::endl;<br>
+   6.bool MainWindow::OutputParabitblock(const QString& path)中添加写入语句的格式是sw << "0xAC ";sw << "0x" << QString("%1 ").arg(value1, 2, 16, QChar('0')).toUpper();<br>
+   7.bool MainWindow::OutputParamDat(const QString& path, int chipCount)中添加写入语句的格式是out << static_cast<quint8>(0xAC);out << static_cast<quint8>(value1);<br>
 	8.bool MainWindow::OutputParamDat(const QString& path, int chipCount)中添加空字节个数使用循环语句，可根据需要修改
