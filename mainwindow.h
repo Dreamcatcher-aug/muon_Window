@@ -147,6 +147,9 @@ private slots:
     void on_slow_rate_send_btn_clicked();
     void on_sync_speed_send_btn_clicked();
     void on_probe_and_register_choose_send_btn_clicked();
+    void on_command_bar_clearbtn_clicked();
+    void on_statusbar_clearbtn_clicked();
+    void updateReceiveControlProgress();
 
 private:
     Ui::MainWindow *ui;
@@ -184,6 +187,7 @@ private:
     QString transformToString();
     int transformToBytes(QByteArray &bitBlock);
     QString fileDic;
+    QTimer *clearReceivedDataTimer;
 
     //额外参数
     QString key1="Quantity of FEEs";
@@ -224,6 +228,20 @@ private:
     QByteArray value10_hex;
     QByteArray value10_hex_send;
     QTimer *timeoutTimer;
+
+    //test
+    enum ReceiveControlType
+    {
+        TimeControl,    // 时间控制
+        SizeControl,    // 大小控制
+        InfinityControl // 无限收集
+    };
+    ReceiveControlType currentControlType;
+    qint64 totalReceiveSize;    // 总接收大小(字节)
+    int totalReceiveMinutes;    // 总接收分钟数
+    qint64 currentReceivedSize; // 当前接收大小
+    int currentReceivedSeconds; // 当前接收秒数
+    QTimer *receiveControlTimer; // 接收控制定时器
 };
 
 

@@ -9,6 +9,13 @@ MainWindow::MainWindow(QWidget *parent)
     , m_isSending(false)
     , splitSizeBytes(0)
     , currentFileReceived(0)
+    , clearReceivedDataTimer(new QTimer(this))
+    , currentControlType(InfinityControl)  // 默认无限收集,可根据需要修改（属性界面）
+    , totalReceiveSize(0)
+    , totalReceiveMinutes(0)
+    , currentReceivedSize(0)
+    , currentReceivedSeconds(0)
+    , receiveControlTimer(new QTimer(this))
 {
     ui->setupUi(this);
     showDefaultTab();
@@ -29,12 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->size_interval_group->setEnabled(false);
     //ui->LG_PAbias->setCurrentIndex(1);    2025.8.16画蛇添足，害得我花费一天时间找到这行代码
 
-    ui->basicset->setStyleSheet("QGroupBox "
-                            "{"
-                            "border: 0.2px solid black;"
-                            "border-radius: 5px;"
-                            "padding: 10px;"
-                            "}");
+    ui->basicset->setStyleSheet("QGroupBox " "{" "border: 0.2px solid black;" "border-radius: 5px;" "padding: 10px;" "}");
 
     socket = new QTcpSocket(this);
     fileSwitchTimer = new QTimer(this);
@@ -66,6 +68,40 @@ MainWindow::MainWindow(QWidget *parent)
             ui->size_interval_group->setEnabled(true);
         }
     });
+
+    clearReceivedDataTimer->setInterval(60000);  //receive_data默认每1分钟刷新，可根据需要更改
+    connect(clearReceivedDataTimer, &QTimer::timeout, this, [this]()
+    {
+        ui->receivedata->clear();
+    });
+
+
+    connect(ui->receive_timeset, &QRadioButton::toggled, this, [this](bool checked) {
+        if (checked) {
+            currentControlType = TimeControl;
+            ui->receive_timeset_edit->setEnabled(true);
+            ui->receive_sizeset_edit->setEnabled(false);
+        }
+    });
+
+    connect(ui->receive_sizeset, &QRadioButton::toggled, this, [this](bool checked) {
+        if (checked) {
+            currentControlType = SizeControl;
+            ui->receive_timeset_edit->setEnabled(false);
+            ui->receive_sizeset_edit->setEnabled(true);
+        }
+    });
+
+    connect(ui->receive_infinity, &QRadioButton::toggled, this, [this](bool checked) {
+        if (checked) {
+            currentControlType = InfinityControl;
+            ui->receive_timeset_edit->setEnabled(false);
+            ui->receive_sizeset_edit->setEnabled(false);
+        }
+    });
+
+    // 接收控制定时器
+    connect(receiveControlTimer, &QTimer::timeout, this, &MainWindow::updateReceiveControlProgress);
 
     for (int i = 0; i < 36; ++i)
     {
@@ -663,6 +699,15 @@ void MainWindow::on_ACQ_stop_clicked()
     }
 }
 
+void MainWindow::on_command_bar_clearbtn_clicked()
+{
+    ui->commandTextEdit->clear();
+}
+
+void MainWindow::on_statusbar_clearbtn_clicked()
+{
+    ui->outTextEdit->clear();
+}
 
 
 //接受数据
@@ -891,6 +936,35 @@ void MainWindow::on_starttosave_clicked()
         return;
     }
 
+    if (currentControlType == TimeControl)
+    {
+        bool ok;
+        int minutes = ui->receive_timeset_edit->text().toInt(&ok);
+        if (!ok || minutes <= 0)
+        {
+            QMessageBox::warning(this, "警告", "请输入有效的分钟数（正整数）");
+            ui->receiveprocess->setEnabled(false);
+            return;
+        }
+        totalReceiveMinutes = minutes;
+    }
+    else if (currentControlType == SizeControl)
+    {
+        bool ok;
+        double mb = ui->receive_sizeset_edit->text().toDouble(&ok);
+        if (!ok || mb <= 0)
+        {
+            QMessageBox::warning(this, "警告", "请输入有效的数据量（正数值）");
+            ui->receiveprocess->setEnabled(false);
+            return;
+        }
+        totalReceiveSize = static_cast<qint64>(mb * 1024 * 1024); // 转换为字节
+    }
+
+    currentReceivedSize = 0;
+    currentReceivedSeconds = 0;
+    ui->receiveprogress->setValue(0);
+
     a.clear();
     b.clear();
     totalReceived = 0;
@@ -902,21 +976,29 @@ void MainWindow::on_starttosave_clicked()
     ui->receivestatusTextEdit->append("<font color='green'>开始收集数据...");
     ui->receivestatusTextEdit->append(QString("缓冲区大小阈值：%1 MB").arg(BLOCK_SIZE / 1024.0 / 1024.0));
 
+    clearReceivedDataTimer->start();
+    ui->receivestatusTextEdit->append("<font color='blue'>已启动自动清空定时器</font>");
+
+    if (currentControlType == TimeControl)
+    {
+        receiveControlTimer->start(1000);
+        ui->receivestatusTextEdit->append(QString("将在%1分钟后自动停止接收").arg(totalReceiveMinutes));
+    }
+    else
+    {
+        receiveControlTimer->stop();
+    }
+
     if (currentSplitType == TimeSplit)
     {
-    remainingSeconds = timeInterval;
-    ui->receiveprogress->setRange(0, 100);
-    ui->receiveprogress->setValue(0);
-
-    fileSwitchTimer->start(timeInterval * 1000);
-    countdownTimer->start(1000);
-    ui->receivestatusTextEdit->append(QString("文件切换定时器已启动，间隔：%1 秒").arg(timeInterval));
+        remainingSeconds = timeInterval;
+        fileSwitchTimer->start(timeInterval * 1000);
+        countdownTimer->start(1000);
+        ui->receivestatusTextEdit->append(QString("文件切换定时器已启动，间隔：%1 秒").arg(timeInterval));
     }
     else
     {
         currentFileReceived = 0;
-        ui->receiveprogress->setRange(0, 100);
-        ui->receiveprogress->setValue(0);
         ui->receivestatusTextEdit->append(QString("文件大小分割已启动，阈值：%1 MB")
                                               .arg(splitSizeBytes / 1024.0 / 1024.0, 0, 'f', 2));
     }
@@ -925,7 +1007,7 @@ void MainWindow::on_starttosave_clicked()
 void MainWindow::switchToNewFile()
 {
     if (!isCollecting || !outputFile || !outputFile->isOpen())
-        return;
+    return;
 
     if (currentSplitType == TimeSplit)
     {
@@ -999,12 +1081,12 @@ void MainWindow::switchToNewFile()
         if (currentSplitType == SizeSplit)
         {
             currentFileReceived = 0;
-            ui->receiveprogress->setValue(0);
+            //ui->receiveprogress->setValue(0);
         }
         else
         {
             remainingSeconds = timeInterval;
-            ui->receiveprogress->setValue(0);
+            //ui->receiveprogress->setValue(0);
         }
         ui->receivestatusTextEdit->append("<font color='green'>继续收集数据...</font>");
     }
@@ -1019,21 +1101,28 @@ void MainWindow::switchToNewFile()
 
 void MainWindow::onDataReceived()
 {
-    static qint64 lastUpdateTime = 0;
-    const int UPDATE_INTERVAL = 100;
-
     if (!isCollecting || !outputFile || !outputFile->isOpen())
         return;
 
     QByteArray newData = socket->readAll();
     totalReceived += newData.size();
+    currentReceivedSize += newData.size();
+
+    if (currentControlType == SizeControl)
+    {
+        int progress = qMin(100, static_cast<int>((currentReceivedSize * 100.0) / totalReceiveSize));
+        ui->receiveprogress->setValue(progress);
+
+        if (currentReceivedSize >= totalReceiveSize)
+        {
+            QMetaObject::invokeMethod(this, &MainWindow::on_endlisten_clicked, Qt::QueuedConnection);
+            return;
+        }
+    }
 
     if (currentSplitType == SizeSplit)
     {
         currentFileReceived += newData.size();
-        int progress = qMin(100, (int)(currentFileReceived * 100.0 / splitSizeBytes));
-        ui->receiveprogress->setValue(progress);
-
         if (currentFileReceived >= splitSizeBytes)
         {
             QMetaObject::invokeMethod(this, &MainWindow::switchToNewFile, Qt::QueuedConnection);
@@ -1104,8 +1193,8 @@ void MainWindow::updateCountdown()
     }
     remainingSeconds--;
 
-    int progress = (timeInterval - remainingSeconds) * 100 / timeInterval;
-    ui->receiveprogress->setValue(progress);
+    //int progress = (timeInterval - remainingSeconds) * 100 / timeInterval;
+    //ui->receiveprogress->setValue(progress);
 
 }
 
@@ -1114,6 +1203,10 @@ void MainWindow::on_endlisten_clicked()
     ui->confirmfilename->setEnabled(true);
     if (!isCollecting)
         return;
+
+    receiveControlTimer->stop();
+    clearReceivedDataTimer->stop();
+    ui->receivestatusTextEdit->append("<font color='blue'>自动清空定时器已停止</font>");
 
     if (currentSplitType == TimeSplit)
     {
@@ -1163,6 +1256,7 @@ void MainWindow::on_endlisten_clicked()
     ui->receiveprogress->setValue(0);
     ui->receivestatusTextEdit->append("<font color='red'>接收已停止，缓冲区已清空</font>");
     ui->receivestatusTextEdit->append("=============================");
+    ui->receiveprogress->setValue(0); // 重置进度条
 }
 
 void MainWindow::on_receive_data_clear_clicked()
@@ -1170,7 +1264,22 @@ void MainWindow::on_receive_data_clear_clicked()
     ui->receivedata->clear();
 }
 
+void MainWindow::updateReceiveControlProgress()
+{
+    if (!isCollecting) return;
 
+    if (currentControlType == TimeControl)
+    {
+        currentReceivedSeconds++;
+        int totalSeconds = totalReceiveMinutes * 60;
+        int progress = qMin(100, (currentReceivedSeconds * 100) / totalSeconds);
+        ui->receiveprogress->setValue(progress);
+        if (currentReceivedSeconds >= totalSeconds)
+        {
+            on_endlisten_clicked();
+        }
+    }
+}
 
 //建立参数字典并生成命令文件
 void MainWindow::initParamSettings()
@@ -3557,3 +3666,9 @@ void MainWindow::on_probe_and_register_choose_send_btn_clicked()
         ui->set_send_status->append("发送probe_and_register_choose成功（十六进制）：" + hexStr);
     }
 }
+
+
+
+
+
+
