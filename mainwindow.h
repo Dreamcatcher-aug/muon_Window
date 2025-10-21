@@ -26,8 +26,15 @@
 #include <QStringList>
 #include<QSettings>
 #include<QDateTime>
+#include <QMutex>
+#include <QObject>
+#include<cancellationtoken.h>
+#include<QThread>
 
 
+//扫描部分
+#include <atomic>
+#include <QAtomicPointer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -151,6 +158,17 @@ private slots:
     void on_statusbar_clearbtn_clicked();
     void updateReceiveControlProgress();
 
+    //扫描部分
+    void on_scSweep_btn_clicked();
+    void scSweep_threadFunc(const CancellationToken &taskToken, const QString &selectedPara);
+    void preampSweep_threadFunc(const CancellationToken &taskToken);
+    void dataAcq_threadFunc(const CancellationToken &token, QDataStream *bw);
+    void sendMessage(const QString &msg);
+    bool DataRecieve(char *buffer, qint64 *len);
+
+
+    void on_scSweepStop_btn_clicked();
+
 private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;
@@ -228,20 +246,22 @@ private:
     QByteArray value10_hex;
     QByteArray value10_hex_send;
     QTimer *timeoutTimer;
-
-    //test
-    enum ReceiveControlType
-    {
-        TimeControl,    // 时间控制
-        SizeControl,    // 大小控制
-        InfinityControl // 无限收集
-    };
+    enum ReceiveControlType { TimeControl, SizeControl, InfinityControl };
     ReceiveControlType currentControlType;
-    qint64 totalReceiveSize;    // 总接收大小(字节)
-    int totalReceiveMinutes;    // 总接收分钟数
-    qint64 currentReceivedSize; // 当前接收大小
-    int currentReceivedSeconds; // 当前接收秒数
-    QTimer *receiveControlTimer; // 接收控制定时器
+    qint64 totalReceiveSize;
+    int totalReceiveMinutes;
+    qint64 currentReceivedSize;
+    int currentReceivedSeconds;
+    QTimer *receiveControlTimer;
+
+    //扫描部分
+    QThread *scSweepThread;
+    QThread *dataAcqThread;
+    QMutex mutex;
+    bool isScanning;
+    CancellationTokenSource* scSweepTks;
+    CancellationTokenSource* dataAcqTks;
+    QTimer* dataAcqTimer;
 };
 
 

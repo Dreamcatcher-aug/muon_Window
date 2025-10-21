@@ -13,6 +13,7 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    cancellationtoken.h \
     mainwindow.h
 
 FORMS += \
