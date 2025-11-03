@@ -43,7 +43,25 @@
 ### receive data
 　　该板块的文本框用于输出数据流接收缓冲区工作状态的实时显示。<br>
 　　点击clear按钮可用于清除文本框的内容。
-## 命令配置页面（尚未完成）
+## 命令配置页面
+对于参数获取部分，我对于代码进行解释：<br>
+### void MainWindow::initParamSettings  仓库函数 
+1. 定义参数索引映射建立 “参数名称→硬件寄存器索引” 的对应关系
+2. 初始化参数存储容器为芯片配置数据分配存储空间
+3. 设置参数默认初始值为所有参数赋值默认配置，确保芯片上电后按预设状态工作
+### void MainWindow::setParam   写入函数
+校验和参数写入函数：如果输入的数值大于位数最大值，强制抛弃高位。经过参数合理性校验，写入参数
+### quint32 MainWindow::getParam  读出参数
+当 ID 合法时，直接从参数存储容器 configData 中读取并返回索引为 id 的参数值。
+### QString MainWindow::transformToString  二进制字符串生成函数
+1. 将参数值转换为固定长度的二进制字符串，遍历每一个函数，将每一个输入的数值转成二进制，然后按预设的位数补全长度
+2. 拼接所有的二进制字符串，参数 ID 越大，其对应的二进制字符串在拼接结果中位置越靠后，也就是处于整个二进制串的 “低位”
+3. 反转整个二进制字符串
+### int MainWindow::transformToBytes(QByteArray &bitBlock) 字节数组生成函数
+1. 生成并反转二进制字符串（参数配置的二进制表示），直接通过调用二进制字符串生成函数实现
+2. 将反转后的二进制字符串按 8 位分组，转换为字节数组，最后剩余的不足 8 位的在右侧补全之后生成十六进制
+3. 函数返回值是字节总数
+### 缺失三个函数： public void save_settings(int settings_id)， public void recall_settings(int settings_id)，public string getTag()
 ***
 # 其他说明
 　　1.m_sendTimer->setInterval(2000); 代码中按照要求，用户选择多文件发送时，程序会默认按照2秒间隔发送命令<br>
