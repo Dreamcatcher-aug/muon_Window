@@ -27,7 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     showDefaultTab();
-    this->setWindowTitle("高分辨率缪子成像装置数据采集软件");
+    this->setWindowTitle("缪子成像探测器控制平台 —— USTC FELab");
+    this->setWindowIcon(QIcon(":/new/prefix1/ustc logo.png"));
     ui->tabWidget->setTabText(0, tr("Connect and Send"));
     ui->tabWidget->setTabText(1, tr("Receive"));
     ui->tabWidget->setTabText(2,tr("SPIROC2e / Slow Control 1"));
@@ -43,8 +44,27 @@ MainWindow::MainWindow(QWidget *parent)
     ui->timeSplitRadio->setChecked(true);
     ui->size_interval_group->setEnabled(false);
     //ui->LG_PAbias->setCurrentIndex(1);    2025.8.16画蛇添足，害得我花费一天时间找到这行代码
-
     ui->basicset->setStyleSheet("QGroupBox " "{" "border: 0.2px solid black;" "border-radius: 5px;" "padding: 10px;" "}");
+
+    //ui美化部分代码
+    ui->connect->setStyleSheet(R"(QPushButton { background-color: #1E90FF; color: white;}QPushButton:hover { background-color: green; })");
+    ui->cancel->setStyleSheet(R"(QPushButton {QPushButton:hover { background-color: darkred; })");
+    ui->starttosave->setStyleSheet(R"(QPushButton { background-color: #1E90FF; color: white;}QPushButton:hover { background-color: green; })");
+    ui->ACQ_start->setStyleSheet(R"(QPushButton { background-color: #1E90FF; color: white;}QPushButton:hover { background-color: green; })");
+    ui->debug_button->setStyleSheet(R"(QPushButton { background-color: #5D4037; color: white;}QPushButton:hover { background-color: green; })");
+    ui->chip_number_send_btn->setStyleSheet(R"(QPushButton { background-color: #5D4037; color: white;}QPushButton:hover { background-color: green; })");
+    ui->Ext_trigger_send_btn->setStyleSheet(R"(QPushButton { background-color: #5D4037; color: white;}QPushButton:hover { background-color: green; })");
+    ui->auto_trigger_cfgr_send_btn->setStyleSheet(R"(QPushButton { background-color: #5D4037; color: white;}QPushButton:hover { background-color: green; })");
+    ui->auto_trigger_cfg_btn->setStyleSheet(R"(QPushButton { background-color: #5D4037; color: white;}QPushButton:hover { background-color: green; })");
+    ui->eventNumPackage_send_btn->setStyleSheet(R"(QPushButton { background-color: #5D4037; color: white;}QPushButton:hover { background-color: green; })");
+    ui->sync_speed_send_btn->setStyleSheet(R"(QPushButton { background-color: #5D4037; color: white;}QPushButton:hover { background-color: green; })");
+    ui->probe_and_register_choose_send_btn->setStyleSheet(R"(QPushButton { background-color: #5D4037; color: white;}QPushButton:hover { background-color: green; })");
+    ui->slow_rate_send_btn->setStyleSheet(R"(QPushButton { background-color: #5D4037; color: white;}QPushButton:hover { background-color: green; })");
+    ui->scSweep_btn->setStyleSheet(R"(QPushButton { background-color: #1E90FF; color: white;}QPushButton:hover { background-color: green; })");
+    ui->scSweepStop_btn->setStyleSheet(R"(QPushButton:hover { background-color: darkred; color : white })");
+    ui->statusbar_clearbtn->setStyleSheet(R"(QPushButton:hover { background-color: darkred; color : white })");
+    ui->command_bar_clearbtn->setStyleSheet(R"(QPushButton:hover { background-color: darkred; color : white })");
+    ui->receive_data_clear->setStyleSheet(R"(QPushButton:hover { background-color: darkred; color : white })");
 
     socket = new QTcpSocket(this);
     fileSwitchTimer = new QTimer(this);
@@ -3739,7 +3759,9 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
     bool ok = false;
 
     // 用BlockingQueuedConnection阻塞等待主线程返回结果
-    QMetaObject::invokeMethod(this, [this, &startValue, &stepValue, &stopValue, &chipCount, &sweepTime, &ok]() {
+    QMetaObject::invokeMethod
+    (this, [this, &startValue, &stepValue, &stopValue, &chipCount, &sweepTime, &ok]()
+    {
         // 主线程中安全读取UI值
         startValue = ui->scSweepStart_value->text().toUInt(&ok);
         if (ok) stepValue = ui->scSweepStep_value->text().toUInt(&ok);
@@ -3749,7 +3771,8 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
     }, Qt::BlockingQueuedConnection);
 
     // 检查参数有效性
-    if (!ok) {
+    if (!ok)
+    {
         QMetaObject::invokeMethod(this, [this]() {
             QMessageBox::warning(this, "输入错误", "请输入有效的数值");
         }, Qt::QueuedConnection);
@@ -3866,11 +3889,10 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
 
         // 检查TCP连接状态
         bool isConnected = false;
-        QMetaObject::invokeMethod(this, [this, &isConnected]() {
-            isConnected = (socket->state() == QAbstractSocket::ConnectedState);
-        }, Qt::BlockingQueuedConnection);  // 阻塞获取状态
+        QMetaObject::invokeMethod(this, [this, &isConnected](){isConnected = (socket->state() == QAbstractSocket::ConnectedState);}, Qt::BlockingQueuedConnection);  // 阻塞获取状态
 
-        if (!isConnected) {
+        if (!isConnected)
+        {
             // 提示连接错误（已正确使用invokeMethod）
             QMetaObject::invokeMethod(this, [this]() {
                 QMessageBox::warning(this, "连接错误", "TCP未连接");
@@ -3879,10 +3901,7 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
         }
 
         // 启动数据采集线程
-        dataAcqThread = QThread::create([this, &bw, &taskToken]()
-        {
-            dataAcq_threadFunc(dataAcqTks->token(), &bw);
-        });
+        dataAcqThread = QThread::create([this, &bw, &taskToken](){dataAcq_threadFunc(dataAcqTks->token(), &bw);});
         dataAcqThread->start();
 
         // 等待采集时间
@@ -3914,11 +3933,6 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
         {
             dataAcqThread->wait();
         }
-
-        // 关闭信号源
-        /*if (isSignalSourceConnected()) {
-            closeSignalSourceOutput();
-        }*/
 
         file.close();
     }
