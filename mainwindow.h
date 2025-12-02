@@ -30,9 +30,6 @@
 #include <QObject>
 #include<cancellationtoken.h>
 #include<QThread>
-
-
-//扫描部分
 #include <atomic>
 #include <QAtomicPointer>
 

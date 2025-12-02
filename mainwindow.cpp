@@ -17,7 +17,6 @@ MainWindow::MainWindow(QWidget *parent)
     , currentReceivedSize(0)
     , currentReceivedSeconds(0)
     , receiveControlTimer(new QTimer(this))
-    //扫描部分
     , scSweepThread(nullptr)
     , dataAcqThread(nullptr)
     , isScanning(false)
