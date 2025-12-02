@@ -1034,8 +1034,7 @@ void MainWindow::on_starttosave_clicked()
     else
     {
         currentFileReceived = 0;
-        ui->receivestatusTextEdit->append(QString("文件大小分割已启动，阈值：%1 MB")
-                                              .arg(splitSizeBytes / 1024.0 / 1024.0, 0, 'f', 2));
+        ui->receivestatusTextEdit->append(QString("文件大小分割已启动，阈值：%1 MB").arg(splitSizeBytes / 1024.0 / 1024.0, 0, 'f', 2));
     }
 }
 
@@ -1227,10 +1226,6 @@ void MainWindow::updateCountdown()
         return;
     }
     remainingSeconds--;
-
-    //int progress = (timeInterval - remainingSeconds) * 100 / timeInterval;
-    //ui->receiveprogress->setValue(progress);
-
 }
 
 void MainWindow::on_endlisten_clicked()
@@ -1646,16 +1641,13 @@ void MainWindow::on_debug_button_clicked()
         qDebug() << "无上次配置文件保存目录，使用默认家目录：" << defaultDialogDir;
     }
 
-    QString selectedDir;
     // 在主线程中打开文件对话框
-    QMetaObject::invokeMethod(this, [this, &selectedDir]() {
-        selectedDir = QFileDialog::getExistingDirectory(
-            this,
-            "选择扫描数据保存目录",
-            QDir::currentPath(),
-            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
-            );
-    }, Qt::BlockingQueuedConnection);
+    QString selectedDir = QFileDialog::getExistingDirectory(
+        this,
+        "选择扫描数据保存目录",
+        QDir::currentPath(),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+        );
 
     if (selectedDir.isEmpty())
     {
@@ -1800,12 +1792,14 @@ bool MainWindow::OutputParabitblock(const QString& path)
     sw << "0x15 ";sw << "0x" << QString("%1 ").arg(value8, 2, 16, QChar('0')).toUpper();
     sw << "0x16 ";sw << "0x" << QString("%1 ").arg(value9, 2, 16, QChar('0')).toUpper();
     sw << "0x06 ";sw << "0x" << QString("%1 ").arg(value10, 2, 16, QChar('0')).toUpper();
+    sw << "\n\n";
 
     for (int i = 0; i < byteCount; ++i)
     {
-        sw << "0x03 ";
-        sw << QString("0x%1 ").arg(static_cast<quint8>(bitBlock[i]), 2, 16, QChar('0')).toUpper();
+       sw << "0x" << QString("%1 ").arg(static_cast<quint8>(bitBlock[i]), 2, 16, QChar('0')).toUpper();
     }
+
+    sw << "EEEE";
 
     file.close();
     return true;
@@ -2087,7 +2081,16 @@ void MainWindow::on_chipID_textChanged(const QString &arg1)
         ui->outTextEdit->append(QString("<font color='red'>ChipID超出范围（0-%1）</font>").arg(maxValue));
         return;
     }
-    setParam(paramId, inputValue);
+
+    uint grayValue = inputValue ^ (inputValue >> 1);
+    uint finalValue = 0;
+    uint temp = grayValue;
+    for (int i = 0; i < bitLength; ++i)
+    {
+        finalValue = (finalValue << 1) | (temp & 1);
+        temp >>= 1;
+    }
+    setParam(paramId, finalValue);
 }
 
 void MainWindow::on_probe_enable_checkStateChanged(const Qt::CheckState &arg1)

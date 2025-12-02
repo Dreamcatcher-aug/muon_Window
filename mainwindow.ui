@@ -1197,6 +1197,39 @@
            </layout>
           </item>
           <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_130">
+            <item>
+             <widget class="QLabel" name="label_112">
+              <property name="minimumSize">
+               <size>
+                <width>200</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>EN DAC2</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="ENDac2">
+              <property name="maximumSize">
+               <size>
+                <width>110</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Disable</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_50">
             <item>
              <widget class="QLabel" name="label_52">
@@ -1407,51 +1440,6 @@
             </item>
            </layout>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_23">
-            <item>
-             <widget class="QLabel" name="label_25">
-              <property name="minimumSize">
-               <size>
-                <width>250</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="sizeIncrement">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>LG_PA_bias</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="LG_PAbias">
-              <item>
-               <property name="text">
-                <string>1</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>0</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>else</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-           </layout>
-          </item>
          </layout>
         </item>
        </layout>
@@ -1461,7 +1449,7 @@
         <rect>
          <x>10</x>
          <y>20</y>
-         <width>351</width>
+         <width>360</width>
          <height>241</height>
         </rect>
        </property>
@@ -1512,7 +1500,7 @@
                </size>
               </property>
               <property name="text">
-               <string>EN_input_dac</string>
+               <string>EN input dac</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1539,7 +1527,7 @@
                </size>
               </property>
               <property name="text">
-               <string>EN_High_Gain_PA</string>
+               <string>EN High Gain PA</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1566,7 +1554,7 @@
                </size>
               </property>
               <property name="text">
-               <string>EN_Low_Gain_PA</string>
+               <string>EN Low Gain PA</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1593,7 +1581,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Fast_Shaper_on_LG</string>
+               <string>Fast Shaper on LG</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1620,7 +1608,7 @@
                </size>
               </property>
               <property name="text">
-               <string>EN_Low_Gain_Slow_Shaper</string>
+               <string>EN Low Gain Slow Shaper</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1651,7 +1639,7 @@
                </size>
               </property>
               <property name="text">
-               <string>EN_Temp</string>
+               <string>EN Temp</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1668,17 +1656,29 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_130">
+           <layout class="QHBoxLayout" name="horizontalLayout_23">
             <item>
-             <widget class="QLabel" name="label_112">
+             <widget class="QLabel" name="label_25">
               <property name="minimumSize">
                <size>
+                <width>120</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
                 <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="sizeIncrement">
+               <size>
+                <width>0</width>
                 <height>0</height>
                </size>
               </property>
               <property name="text">
-               <string>EN_DAC2</string>
+               <string>LG_PA_bias</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1686,10 +1686,28 @@
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="ENDac2">
-              <property name="text">
-               <string>Disable</string>
+             <widget class="QComboBox" name="LG_PAbias">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
               </property>
+              <item>
+               <property name="text">
+                <string>1</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>0</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>else</string>
+               </property>
+              </item>
              </widget>
             </item>
            </layout>
@@ -1705,7 +1723,7 @@
                </size>
               </property>
               <property name="text">
-               <string>TDC_RAMP_EN</string>
+               <string>TDC RAMP EN</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1732,7 +1750,7 @@
                </size>
               </property>
               <property name="text">
-               <string>EN_LVDS_receiver_ValEvt</string>
+               <string>EN LVDS receiver ValEvt</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -5784,7 +5802,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>610</x>
