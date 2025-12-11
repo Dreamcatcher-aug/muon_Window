@@ -44,8 +44,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->size_interval_group->setEnabled(false);
     //ui->LG_PAbias->setCurrentIndex(1);    2025.8.16画蛇添足，害得我花费一天时间找到这行代码
     ui->basicset->setStyleSheet("QGroupBox " "{" "border: 0.2px solid black;" "border-radius: 5px;" "padding: 10px;" "}");
-
-    //ui美化部分代码
     ui->connect->setStyleSheet(R"(QPushButton { background-color: #1E90FF; color: white;}QPushButton:hover { background-color: green; })");
     ui->cancel->setStyleSheet(R"(QPushButton {QPushButton:hover { background-color: darkred; })");
     ui->starttosave->setStyleSheet(R"(QPushButton { background-color: #1E90FF; color: white;}QPushButton:hover { background-color: green; })");
@@ -64,7 +62,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar_clearbtn->setStyleSheet(R"(QPushButton:hover { background-color: darkred; color : white })");
     ui->command_bar_clearbtn->setStyleSheet(R"(QPushButton:hover { background-color: darkred; color : white })");
     ui->receive_data_clear->setStyleSheet(R"(QPushButton:hover { background-color: darkred; color : white })");
-
     socket = new QTcpSocket(this);
     fileSwitchTimer = new QTimer(this);
     countdownTimer = new QTimer(this);
@@ -3719,23 +3716,26 @@ void MainWindow::on_scSweep_btn_clicked()
         return;
     }
 
-    // 检查TCP连接状态
-    if (socket->state() != QAbstractSocket::ConnectedState) {
+    if (socket->state() != QAbstractSocket::ConnectedState)
+    {
         QMessageBox::warning(this, "连接错误", "TCP或设备未连接");
         return;
     }
 
-    // 初始化取消令牌
-    scSweepTks = new CancellationTokenSource();  // 创建新对象
+    scSweepTks = new CancellationTokenSource();
     isScanning = true;
 
     QString selectPara = ui->scSweepPara_select->currentText();
 
-    if (selectPara == "preamp") {
-        scSweepThread = QThread::create([this]() {
+    if (selectPara == "preamp")
+    {
+        scSweepThread = QThread::create([this]()
+        {
             preampSweep_threadFunc(scSweepTks->token());
         });
-    } else {
+    }
+    else
+    {
         scSweepThread = QThread::create([this, selectPara]()
         {
             scSweep_threadFunc(scSweepTks->token(), selectPara);
@@ -3745,13 +3745,8 @@ void MainWindow::on_scSweep_btn_clicked()
     connect(scSweepThread, &QThread::finished, scSweepThread, &QThread::deleteLater);
     connect(scSweepThread, &QThread::finished, [this]() {
         isScanning = false;
-        //ui->Acq_status_label->setText("IDLE");
-        //ui->Acq_status_label->setStyleSheet("color: black;");
     });
     scSweepThread->start();
-
-    //ui->Acq_status_label->setText("SC sweep");
-    //ui->Acq_status_label->setStyleSheet("color: green;");
 }
 
 void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QString &selectedPara)
@@ -3759,12 +3754,9 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
     uint startValue, stepValue, stopValue;
     int chipCount, sweepTime;
     bool ok = false;
-
-    // 用BlockingQueuedConnection阻塞等待主线程返回结果
     QMetaObject::invokeMethod
     (this, [this, &startValue, &stepValue, &stopValue, &chipCount, &sweepTime, &ok]()
     {
-        // 主线程中安全读取UI值
         startValue = ui->scSweepStart_value->text().toUInt(&ok);
         if (ok) stepValue = ui->scSweepStep_value->text().toUInt(&ok);
         if (ok) stopValue = ui->scSweepStop_value->text().toUInt(&ok);
@@ -3772,10 +3764,10 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
         if (ok) sweepTime = ui->scSweepTime_value->text().toInt() * 1000;
     }, Qt::BlockingQueuedConnection);
 
-    // 检查参数有效性
     if (!ok)
     {
-        QMetaObject::invokeMethod(this, [this]() {
+        QMetaObject::invokeMethod(this, [this]()
+        {
             QMessageBox::warning(this, "输入错误", "请输入有效的数值");
         }, Qt::QueuedConnection);
         return;
@@ -3797,8 +3789,8 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
     QDateTime dayStamp = QDateTime::currentDateTime();
     QString subDic = dayStamp.toString("yyyyMMdd_HHmm_ss") + "_scSweep";
     QString selectedDir;
-    // 在主线程中打开文件对话框
-    QMetaObject::invokeMethod(this, [this, &selectedDir]() {
+    QMetaObject::invokeMethod(this, [this, &selectedDir]()
+    {
         selectedDir = QFileDialog::getExistingDirectory(
             this,
             "选择扫描数据保存目录",
@@ -3807,19 +3799,17 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
             );
     }, Qt::BlockingQueuedConnection);
 
-    // 2. 检查用户是否取消选择
-    if (selectedDir.isEmpty()) {
-        QMetaObject::invokeMethod(this, [this]() {
+    if (selectedDir.isEmpty())
+    {
+        QMetaObject::invokeMethod(this, [this]()
+        {
             QMessageBox::information(this, "提示", "未选择保存目录，扫描已取消");
         });
-        return; // 用户取消，终止扫描
+        return;
     }
 
-    // 3. 拼接完整路径（用 QDir::separator() 自动适配 Windows/Linux 路径分隔符）
     QString fullPath = selectedDir + QDir::separator() + subDic;
     QDir().mkpath(fullPath);
-
-
 
     for (uint v = startValue; v <= stopValue; v += stepValue)
     {
@@ -3828,7 +3818,7 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
         sendMessage(QString("开始采集: %1 %2\n").arg(v).arg(selectedPara));
 
         QString fileName = QString("%1_%2.dat")
-                               .arg(QString(selectedPara).replace(' ', '_'))  // 关键：先用 QString() 转换
+                               .arg(QString(selectedPara).replace(' ', '_'))
                                .arg(v);
         QString filePath = fullPath + "/" + fileName;
 
@@ -3843,36 +3833,28 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
 
         QThread::msleep(100);
 
-        // 更新配置参数
         dataAcqTks->cancel();
-        if (dataAcqThread && dataAcqThread->isRunning()) {
+        if (dataAcqThread && dataAcqThread->isRunning())
+        {
             dataAcqThread->wait();
         }
 
         if (dataAcqTks != nullptr)
         {
-            delete dataAcqTks;  // 释放之前的取消源
+            delete dataAcqTks;
         }
-        // 用 new 创建新的堆对象，指针指向新对象（类型匹配）
         dataAcqTks = new CancellationTokenSource();
 
         int chipCount = ui->chip_num_input->value();
         for (int i = 0; i < chipCount; ++i)
         {
             setParam(propertyTable[selectedPara], v);
-
-            // 特殊处理触发延迟
             if (selectedPara == "trig delay")
             {
                 setParam(paramSettings["DELAY_VALIDHOLD"], v / 4);
             }
         }
-
-        // 应用配置
-        //QMetaObject::invokeMethod(this, &MainWindow::on_normal_config_button_clicked);
         QThread::msleep(100);
-
-        // 发送开始采集命令
         QByteArray fixedData;
         fixedData.append(static_cast<char>(0xFF));
         fixedData.append(static_cast<char>(0x00));
@@ -3880,36 +3862,32 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
         QMetaObject::invokeMethod(this, [this, fixedData]()
                                   {
                                       qint64 bytesSent = socket->write(fixedData);
-                                      // 后续的UI更新也放在这里
-                                      if (bytesSent == -1) {
+                                      if (bytesSent == -1)
+                                      {
                                           ui->sweep_status->append("<font color='red'>发送固定内容失败</font>");
-                                      } else {
-                                          ui->sweep_status->append(QString("<font color='green'>成功发送ACQ_START</font>").arg(bytesSent));
-                                          // ... 其他逻辑
+                                      }
+                                      else
+                                      {
+                                        ui->sweep_status->append(QString("<font color='green'>成功发送ACQ_START</font>").arg(bytesSent));
+
                                       }
                                   }, Qt::QueuedConnection);
 
-        // 检查TCP连接状态
         bool isConnected = false;
         QMetaObject::invokeMethod(this, [this, &isConnected](){isConnected = (socket->state() == QAbstractSocket::ConnectedState);}, Qt::BlockingQueuedConnection);  // 阻塞获取状态
 
         if (!isConnected)
         {
-            // 提示连接错误（已正确使用invokeMethod）
-            QMetaObject::invokeMethod(this, [this]() {
+            QMetaObject::invokeMethod(this, [this]()
+            {
                 QMessageBox::warning(this, "连接错误", "TCP未连接");
             }, Qt::QueuedConnection);
             break;
         }
 
-        // 启动数据采集线程
         dataAcqThread = QThread::create([this, &bw, &taskToken](){dataAcq_threadFunc(dataAcqTks->token(), &bw);});
         dataAcqThread->start();
-
-        // 等待采集时间
         QThread::msleep(sweepTime);
-
-        // 停止采集
         QByteArray fixedData2;
         fixedData2.append(static_cast<char>(0xFF));
         fixedData2.append(static_cast<char>(0x01));
@@ -3917,7 +3895,6 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
         QMetaObject::invokeMethod(this, [this, fixedData2]()
         {
             qint64 bytesSent2 = socket->write(fixedData2);
-            // 后续的UI更新也放在这里
             if (bytesSent2 == -1)
             {
                 ui->sweep_status->append("<font color='red'>发送固定内容失败</font>");
@@ -3925,11 +3902,9 @@ void MainWindow::scSweep_threadFunc(const CancellationToken &taskToken, const QS
             else
             {
                 ui->sweep_status->append(QString("<font color='green'>成功发送ACQ_STOP</font>").arg(bytesSent2));
-                // ... 其他逻辑
             }
         }, Qt::QueuedConnection);
 
-        // 取消数据采集线程
         dataAcqTks->cancel();
         if (dataAcqThread->isRunning())
         {
@@ -3946,9 +3921,7 @@ void MainWindow::preampSweep_threadFunc(const CancellationToken &taskToken)
     int chipCount, sweepTime;
     bool ok = false;
 
-    // 用BlockingQueuedConnection阻塞等待主线程返回结果
     QMetaObject::invokeMethod(this, [this, &startValue, &stepValue, &stopValue, &chipCount, &sweepTime, &ok]() {
-        // 主线程中安全读取UI值
         startValue = ui->scSweepStart_value->text().toUInt(&ok);
         if (ok) stepValue = ui->scSweepStep_value->text().toUInt(&ok);
         if (ok) stopValue = ui->scSweepStop_value->text().toUInt(&ok);
@@ -3956,9 +3929,10 @@ void MainWindow::preampSweep_threadFunc(const CancellationToken &taskToken)
         if (ok) sweepTime = ui->scSweepTime_value->text().toInt() * 1000;
     }, Qt::BlockingQueuedConnection);
 
-    // 检查参数有效性
-    if (!ok) {
-        QMetaObject::invokeMethod(this, [this]() {
+    if (!ok)
+    {
+        QMetaObject::invokeMethod(this, [this]()
+        {
             QMessageBox::warning(this, "输入错误", "请输入有效的数值");
         }, Qt::QueuedConnection);
         return;
@@ -3967,8 +3941,8 @@ void MainWindow::preampSweep_threadFunc(const CancellationToken &taskToken)
     QDateTime dayStamp = QDateTime::currentDateTime();
     QString subDic = dayStamp.toString("yyyyMMdd_HHmm_ss") + "_preampSweep";
     QString selectedDir;
-    // 主线程中打开文件对话框，阻塞等待结果
-    QMetaObject::invokeMethod(this, [this, &selectedDir]() {
+    QMetaObject::invokeMethod(this, [this, &selectedDir]()
+    {
         selectedDir = QFileDialog::getExistingDirectory(
             this,
             "选择扫描数据保存目录",
@@ -3977,19 +3951,19 @@ void MainWindow::preampSweep_threadFunc(const CancellationToken &taskToken)
             );
     }, Qt::BlockingQueuedConnection);
 
-    // 2. 检查用户是否取消选择
-    if (selectedDir.isEmpty()) {
+    if (selectedDir.isEmpty())
+    {
         QMetaObject::invokeMethod(this, [this]() {
             QMessageBox::information(this, "提示", "未选择保存目录，扫描已取消");
         });
-        return; // 用户取消，终止扫描
+        return;
     }
 
-    // 3. 拼接完整路径（用 QDir::separator() 自动适配 Windows/Linux 路径分隔符）
     QString fullPath = selectedDir + QDir::separator() + subDic;
     QDir().mkpath(fullPath);
 
-    for (uint v = startValue; v <= stopValue; v += stepValue) {
+    for (uint v = startValue; v <= stopValue; v += stepValue)
+    {
         if (taskToken.isCanceled()) break;
 
         sendMessage(QString("开始采集: %1 preamp\n").arg(v));
@@ -4003,20 +3977,15 @@ void MainWindow::preampSweep_threadFunc(const CancellationToken &taskToken)
             continue;
         }
         QDataStream bw(&file);
-
-        // 准备数据采集线程
         dataAcqTks->cancel();
         if (dataAcqThread && dataAcqThread->isRunning()) {
             dataAcqThread->wait();
         }
         if (dataAcqTks != nullptr)
         {
-            delete dataAcqTks;  // 释放之前的取消源
+            delete dataAcqTks;
         }
-        // 用 new 创建新的堆对象，指针指向新对象（类型匹配）
         dataAcqTks = new CancellationTokenSource();
-
-        // 更新前置放大器配置
 
         for (int chn = 0; chn < 36; ++chn)
         {
@@ -4029,12 +3998,8 @@ void MainWindow::preampSweep_threadFunc(const CancellationToken &taskToken)
             setParam(paramSettings[key], newValue);
         }
 
-
-        // 应用配置
-        //QMetaObject::invokeMethod(this, &MainWindow::on_normal_config_button_clicked);
         QThread::msleep(500);
 
-        // 发送开始采集命令
         QByteArray fixedData;
         fixedData.append(static_cast<char>(0xFF));
         fixedData.append(static_cast<char>(0x00));
@@ -4051,31 +4016,25 @@ void MainWindow::preampSweep_threadFunc(const CancellationToken &taskToken)
                                       }
                                   }, Qt::QueuedConnection);
 
-        // 检查TCP连接状态
         bool isConnected = false;
         QMetaObject::invokeMethod(this, [this, &isConnected]() {
             isConnected = (socket->state() == QAbstractSocket::ConnectedState);
-        }, Qt::BlockingQueuedConnection);  // 阻塞获取状态
+        }, Qt::BlockingQueuedConnection);
 
         if (!isConnected) {
-            // 提示连接错误（已正确使用invokeMethod）
             QMetaObject::invokeMethod(this, [this]() {
                 QMessageBox::warning(this, "连接错误", "TCP未连接");
             }, Qt::QueuedConnection);
             break;
         }
 
-        // 启动数据采集线程
         dataAcqThread = QThread::create([this, &bw, &taskToken]()
                                         {
                                             dataAcq_threadFunc(dataAcqTks->token(), &bw);
                                         });
         dataAcqThread->start();
 
-        // 等待采集时间
         QThread::msleep(sweepTime);
-
-        // 停止采集
         QByteArray fixedData2;
         fixedData2.append(static_cast<char>(0xFF));
         fixedData2.append(static_cast<char>(0x01));
@@ -4092,7 +4051,6 @@ void MainWindow::preampSweep_threadFunc(const CancellationToken &taskToken)
                                       }
                                   }, Qt::QueuedConnection);
 
-        // 取消数据采集线程
         dataAcqTks->cancel();
         if (dataAcqThread->isRunning()) {
             dataAcqThread->wait();
@@ -4104,115 +4062,106 @@ void MainWindow::preampSweep_threadFunc(const CancellationToken &taskToken)
 
 void MainWindow::sendMessage(const QString &msg)
 {
-    // 关键：将msg拷贝为局部变量，避免引用子线程的临时对象
-    QString safeMsg = msg;  // 显式拷贝，确保线程安全
-    QMetaObject::invokeMethod(this, [this, safeMsg]() mutable {  // 用mutable允许修改拷贝的变量
-        //ui->Acq_status_label->setText(safeMsg);  // 此时safeMsg是主线程中的拷贝，安全
+    QString safeMsg = msg;
+    QMetaObject::invokeMethod(this, [this, safeMsg]() mutable
+    {
         ui->outTextEdit->append(safeMsg);
     }, Qt::QueuedConnection);
 }
 
 void MainWindow::dataAcq_threadFunc(const CancellationToken &token, QDataStream *bw)
 {
-    // 1. 初始化缓冲区（512字节，与C#版本一致）
     const int bufferSize = 512;
     char data_buffer[bufferSize];
-    qint64 len = 0;          // 实际接收的字节数
-    qint64 sumByte = 0;      // 累计接收字节数
-
-    // 2. 定时显示接收大小（每3秒更新一次UI，解决线程安全问题）
+    qint64 len = 0;
+    qint64 sumByte = 0;
     QTimer *timer = new QTimer();
     timer->setInterval(3000);
     timer->moveToThread(QThread::currentThread());
 
-    // 保存计时器指针到类成员，方便外部停止（需在MainWindow类中声明：QTimer* dataAcqTimer = nullptr;）
     QMetaObject::invokeMethod(this, [this, timer]()
     {
-        dataAcqTimer = timer;  // 主线程暂存计时器指针
+        dataAcqTimer = timer;
     }, Qt::BlockingQueuedConnection);
-    // 连接定时器信号（跨线程必须用QueuedConnection）
+
     connect(timer, &QTimer::timeout, this, [this, &sumByte]() {
-        // 线程安全更新UI：通过invokeMethod将操作投递到主线程
+
         QMetaObject::invokeMethod(this, [this, sumByte]() {
             ui->sweep_status->append(QString("已接收数据: %1 字节").arg(sumByte));
         }, Qt::QueuedConnection);
-    }, Qt::QueuedConnection);  // 子线程定时器用QueuedConnection更安全
+    }, Qt::QueuedConnection);
     timer->start();
 
-    // 3. 循环接收数据（核心逻辑，移除不支持的刷新操作）
-    while (true) {
-        // 检查取消信号（用户触发停止时退出）
+    while (true)
+    {
+
         if (token.isCanceled()) {
-            // 取消时：休眠100ms后尝试最后一次接收
             QThread::msleep(100);
             len = bufferSize;
-            bool bResult = DataRecieve(data_buffer, &len);  // 自定义数据接收函数
+            bool bResult = DataRecieve(data_buffer, &len);
 
-            // 写入最后一次接收的数据（如果有）
             if (len > 0) {
-                bw->writeRawData(data_buffer, len);  // 写入原始字节
-            }
-
-            // 接收失败或无数据，退出循环
-            if (!bResult || len <= 0) {
-                break;  // 无需手动刷新，文件关闭时自动写入磁盘
-            }
-        } else {
-            // 正常接收：循环读取数据
-            len = bufferSize;
-            bool bResult = DataRecieve(data_buffer, &len);  // 读取数据
-
-            if (bResult && len > 0) {
-                // 写入数据到文件（依赖QFile内部缓冲机制）
                 bw->writeRawData(data_buffer, len);
-                sumByte += len;  // 累计字节数
-                // 移除：bw->device()->flush();（QIODevice无此方法）
-            } else {
-                // 接收失败时短暂休眠，降低CPU占用
+            }
+
+
+            if (!bResult || len <= 0)
+            {
+                break;
+            }
+        }
+        else
+        {
+            len = bufferSize;
+            bool bResult = DataRecieve(data_buffer, &len);
+
+            if (bResult && len > 0)
+            {
+                bw->writeRawData(data_buffer, len);
+                sumByte += len;
+            }
+            else
+            {
+
                 QThread::msleep(10);
             }
         }
     }
 
-    // 4. 清理资源（必须释放，避免内存泄漏）
     sumByte = 0;
     timer->stop();
-    delete timer;  // 销毁计时器
+    delete timer;
 
-    // 关键：通过主线程将dataAcqTimer置空，避免野指针
-    QMetaObject::invokeMethod(this, [this]() {
-        dataAcqTimer = nullptr;  // 主线程中安全置空
-    }, Qt::BlockingQueuedConnection);  // 阻塞确保置空完成
+    QMetaObject::invokeMethod(this, [this]()
+    {
+        dataAcqTimer = nullptr;
+    }, Qt::BlockingQueuedConnection);
 }
 
 bool MainWindow::DataRecieve(char *buffer, qint64 *len)
 {
-    // 示例：从 TCP socket 接收数据（假设 socket 是 QTcpSocket 实例）
     if (socket->state() != QAbstractSocket::ConnectedState)
     {
         *len = 0;
         return false;
     }
-    // 读取数据（最多读取 *len 字节，实际读取的字节数返回给 *len）
+
     *len = socket->read(buffer, *len);
-    return *len > 0;  // 读取成功返回 true
+    return *len > 0;
 }
 
 void MainWindow::on_scSweepStop_btn_clicked()
 {
-    // 1. 安全取消扫描线程（检查空指针）
-    if (scSweepTks) {  // 仅当指针有效时调用
+
+    if (scSweepTks)
+    {
         scSweepTks->cancel();
-        // （可选）若需要立即释放，可在此处标记后由线程结束时删除
-        // scSweepTks = nullptr;  // 需确保线程中不再使用
     }
 
-    // 2. 安全停止数据采集计时器
-    if (dataAcqTimer) {
-        // 向计时器发送停止信号（即使已销毁，QueuedConnection也会安全处理）
+    if (dataAcqTimer)
+    {
         QMetaObject::invokeMethod(dataAcqTimer, &QTimer::stop, Qt::QueuedConnection);
         dataAcqTimer = nullptr;  // 立即置空，避免野指针
     }
 
 }
-

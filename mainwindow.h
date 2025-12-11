@@ -154,16 +154,12 @@ private slots:
     void on_command_bar_clearbtn_clicked();
     void on_statusbar_clearbtn_clicked();
     void updateReceiveControlProgress();
-
-    //扫描部分
     void on_scSweep_btn_clicked();
     void scSweep_threadFunc(const CancellationToken &taskToken, const QString &selectedPara);
     void preampSweep_threadFunc(const CancellationToken &taskToken);
     void dataAcq_threadFunc(const CancellationToken &token, QDataStream *bw);
     void sendMessage(const QString &msg);
     bool DataRecieve(char *buffer, qint64 *len);
-
-
     void on_scSweepStop_btn_clicked();
 
 private:
@@ -203,8 +199,6 @@ private:
     int transformToBytes(QByteArray &bitBlock);
     QString fileDic;
     QTimer *clearReceivedDataTimer;
-
-    //额外参数
     QString key1="Quantity of FEEs";
     int value1 = 0;
     QByteArray value1_hex;
@@ -250,8 +244,6 @@ private:
     qint64 currentReceivedSize;
     int currentReceivedSeconds;
     QTimer *receiveControlTimer;
-
-    //扫描部分
     QThread *scSweepThread;
     QThread *dataAcqThread;
     QMutex mutex;
@@ -260,6 +252,5 @@ private:
     CancellationTokenSource* dataAcqTks;
     QTimer* dataAcqTimer;
 };
-
 
 #endif // MAINWINDOW_H

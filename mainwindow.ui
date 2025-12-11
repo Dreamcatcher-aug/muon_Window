@@ -30,7 +30,7 @@
      </size>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="command_and_send">
      <attribute name="title">
@@ -244,8 +244,8 @@
       <widget class="QPushButton" name="statusbar_clearbtn">
        <property name="geometry">
         <rect>
-         <x>355</x>
-         <y>209</y>
+         <x>350</x>
+         <y>210</y>
          <width>81</width>
          <height>21</height>
         </rect>
@@ -1423,12 +1423,12 @@
              <widget class="QComboBox" name="GC8bitDAC">
               <item>
                <property name="text">
-                <string>1</string>
+                <string>4.5V</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>0</string>
+                <string>2.5V</string>
                </property>
               </item>
               <item>
@@ -1695,12 +1695,12 @@
               </property>
               <item>
                <property name="text">
-                <string>1</string>
+                <string>week bias</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>0</string>
+                <string>normal bias</string>
                </property>
               </item>
               <item>
@@ -2376,12 +2376,12 @@
             </property>
             <item>
              <property name="text">
-              <string>0</string>
+              <string>fast</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>1</string>
+              <string>slow</string>
              </property>
             </item>
             <item>
@@ -2415,17 +2415,17 @@
             </property>
             <item>
              <property name="text">
-              <string>0</string>
+              <string>12bit</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>2</string>
+              <string>10bit</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>3</string>
+              <string>8bit</string>
              </property>
             </item>
             <item>
