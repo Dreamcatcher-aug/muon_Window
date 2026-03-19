@@ -1,6 +1,7 @@
 # 中国科学技术大学 “大学生研究计划”项目
 **项目中文名称**：高分辨率缪子成像装置数据采集软件设计<br>
-**项目英文名称**：Data Acquisition Software Design for High-Resolution Muon Imaging System
+**项目英文名称**：Data Acquisition Software Design for High-Resolution Muon Imaging System<br>
+**软件下载链接** https://github.com/Dreamcatcher-aug/muon_Window/releases/download/v3.2/muon_Window_boxed.exe
 
 **姓名**：王景成<br>
 **学号**：PB23020503<br>
