@@ -30,7 +30,7 @@
      </size>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>5</number>
     </property>
     <widget class="QWidget" name="command_and_send">
      <attribute name="title">
@@ -74,7 +74,7 @@
          <x>10</x>
          <y>40</y>
          <width>241</width>
-         <height>21</height>
+         <height>24</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout">
@@ -105,7 +105,7 @@
          <x>10</x>
          <y>80</y>
          <width>241</width>
-         <height>22</height>
+         <height>24</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -386,7 +386,7 @@
          <rect>
           <x>40</x>
           <y>30</y>
-          <width>201</width>
+          <width>210</width>
           <height>22</height>
          </rect>
         </property>
@@ -438,7 +438,7 @@
          <rect>
           <x>40</x>
           <y>70</y>
-          <width>201</width>
+          <width>210</width>
           <height>22</height>
          </rect>
         </property>
@@ -668,7 +668,7 @@
           <x>10</x>
           <y>30</y>
           <width>321</width>
-          <height>23</height>
+          <height>26</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_132">
@@ -807,7 +807,7 @@
           <x>20</x>
           <y>20</y>
           <width>321</width>
-          <height>21</height>
+          <height>24</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -998,7 +998,7 @@
         <rect>
          <x>90</x>
          <y>30</y>
-         <width>161</width>
+         <width>170</width>
          <height>22</height>
         </rect>
        </property>
@@ -1051,7 +1051,7 @@
          <x>20</x>
          <y>20</y>
          <width>171</width>
-         <height>70</height>
+         <height>76</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_24">
@@ -1450,7 +1450,7 @@
          <x>10</x>
          <y>20</y>
          <width>360</width>
-         <height>241</height>
+         <height>246</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_19">
@@ -1794,7 +1794,7 @@
          <x>370</x>
          <y>20</y>
          <width>371</width>
-         <height>231</height>
+         <height>250</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -2076,7 +2076,7 @@
          <x>10</x>
          <y>20</y>
          <width>351</width>
-         <height>240</height>
+         <height>246</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -2468,7 +2468,7 @@
          <x>10</x>
          <y>30</y>
          <width>221</width>
-         <height>20</height>
+         <height>21</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_35">
@@ -2494,7 +2494,7 @@
          <x>250</x>
          <y>30</y>
          <width>221</width>
-         <height>20</height>
+         <height>21</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_40">
@@ -2520,7 +2520,7 @@
          <x>10</x>
          <y>60</y>
          <width>221</width>
-         <height>20</height>
+         <height>21</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_41">
@@ -2546,7 +2546,7 @@
          <x>250</x>
          <y>60</y>
          <width>221</width>
-         <height>20</height>
+         <height>21</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_42">
@@ -2572,7 +2572,7 @@
          <x>10</x>
          <y>90</y>
          <width>221</width>
-         <height>20</height>
+         <height>21</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_43">
@@ -2604,7 +2604,7 @@
          <x>250</x>
          <y>90</y>
          <width>221</width>
-         <height>20</height>
+         <height>21</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_51">
@@ -2630,7 +2630,7 @@
          <x>10</x>
          <y>120</y>
          <width>221</width>
-         <height>20</height>
+         <height>21</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_52">
@@ -2656,7 +2656,7 @@
          <x>250</x>
          <y>120</y>
          <width>221</width>
-         <height>20</height>
+         <height>21</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_53">
@@ -3078,7 +3078,7 @@
          <x>60</x>
          <y>20</y>
          <width>151</width>
-         <height>311</height>
+         <height>334</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -3330,7 +3330,7 @@
          <x>270</x>
          <y>20</y>
          <width>151</width>
-         <height>311</height>
+         <height>334</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -3582,7 +3582,7 @@
          <x>490</x>
          <y>20</y>
          <width>151</width>
-         <height>311</height>
+         <height>334</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -3857,7 +3857,7 @@
          <x>10</x>
          <y>30</y>
          <width>221</width>
-         <height>481</height>
+         <height>504</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_90">
@@ -4363,7 +4363,7 @@
          <x>300</x>
          <y>30</y>
          <width>211</width>
-         <height>481</height>
+         <height>504</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_91">
@@ -5211,7 +5211,7 @@
          <x>20</x>
          <y>30</y>
          <width>191</width>
-         <height>21</height>
+         <height>24</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_134">
@@ -5233,7 +5233,7 @@
          <x>250</x>
          <y>30</y>
          <width>191</width>
-         <height>21</height>
+         <height>24</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_135">
@@ -5255,7 +5255,7 @@
          <x>460</x>
          <y>30</y>
          <width>271</width>
-         <height>21</height>
+         <height>23</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -5288,7 +5288,7 @@
          <x>390</x>
          <y>200</y>
          <width>341</width>
-         <height>21</height>
+         <height>24</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_136">
@@ -5333,7 +5333,7 @@
          <x>480</x>
          <y>160</y>
          <width>251</width>
-         <height>21</height>
+         <height>24</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_137">
@@ -5429,7 +5429,7 @@
          <x>20</x>
          <y>200</y>
          <width>351</width>
-         <height>21</height>
+         <height>24</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_141">
@@ -5469,7 +5469,7 @@
          <x>20</x>
          <y>160</y>
          <width>441</width>
-         <height>21</height>
+         <height>23</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_143">
@@ -5674,7 +5674,7 @@
          <x>20</x>
          <y>110</y>
          <width>711</width>
-         <height>23</height>
+         <height>25</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_145">
@@ -5730,8 +5730,8 @@
      <widget class="QPushButton" name="debug_button">
       <property name="geometry">
        <rect>
-        <x>640</x>
-        <y>340</y>
+        <x>620</x>
+        <y>360</y>
         <width>121</width>
         <height>31</height>
        </rect>
@@ -5743,8 +5743,8 @@
      <widget class="QLabel" name="Acq_status_label">
       <property name="geometry">
        <rect>
-        <x>640</x>
-        <y>380</y>
+        <x>620</x>
+        <y>410</y>
         <width>121</width>
         <height>61</height>
        </rect>
@@ -5769,7 +5769,7 @@
        <rect>
         <x>20</x>
         <y>340</y>
-        <width>571</width>
+        <width>551</width>
         <height>221</height>
        </rect>
       </property>
@@ -5786,7 +5786,7 @@
         <rect>
          <x>10</x>
          <y>20</y>
-         <width>281</width>
+         <width>261</width>
          <height>181</height>
         </rect>
        </property>
@@ -5794,7 +5794,7 @@
       <widget class="QTextEdit" name="sweep_status">
        <property name="geometry">
         <rect>
-         <x>310</x>
+         <x>280</x>
          <y>20</y>
          <width>251</width>
          <height>181</height>
@@ -5805,9 +5805,9 @@
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>610</x>
+        <x>580</x>
         <y>490</y>
-        <width>141</width>
+        <width>211</width>
         <height>61</height>
        </rect>
       </property>
@@ -5816,11 +5816,11 @@
         <widget class="QLabel" name="label_145">
          <property name="font">
           <font>
-           <pointsize>13</pointsize>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="text">
-          <string>Contact:    </string>
+          <string>著作权人：中国科学技术大学</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignJustify|Qt::AlignmentFlag::AlignVCenter</set>
@@ -5840,11 +5840,11 @@
         <widget class="QLabel" name="label_146">
          <property name="font">
           <font>
-           <pointsize>11</pointsize>
+           <pointsize>9</pointsize>
           </font>
          </property>
          <property name="text">
-          <string> jc_wang@ustc.edu</string>
+          <string>作者：jc_wang@mail.ustc.edu.cn</string>
          </property>
         </widget>
        </item>

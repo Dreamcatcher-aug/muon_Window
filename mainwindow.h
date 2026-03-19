@@ -171,7 +171,7 @@ private:
     QString currentFilePath;
     bool isCollecting;
     bool isWritingA;
-    const qint64 BLOCK_SIZE = 100*1024*1024;    //缓冲区大小，可根据需要修改
+    const qint64 BLOCK_SIZE = 100*1024*1024;
     QTimer *fileSwitchTimer;
     QTimer *countdownTimer;
     int timeInterval;

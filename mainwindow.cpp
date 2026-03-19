@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     , splitSizeBytes(0)
     , currentFileReceived(0)
     , clearReceivedDataTimer(new QTimer(this))
-    , currentControlType(InfinityControl)  // 默认无限收集,可根据需要修改（属性界面）
+    , currentControlType(InfinityControl)
     , totalReceiveSize(0)
     , totalReceiveMinutes(0)
     , currentReceivedSize(0)
@@ -66,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent)
     fileSwitchTimer = new QTimer(this);
     countdownTimer = new QTimer(this);
     m_sendTimer = new QTimer(this);
-    m_sendTimer->setInterval(2000);    //文件发送时间间隔默认设定为2秒，可根据需求修改
+    m_sendTimer->setInterval(2000);
     initParamSettings();
     refreshParamPanel2E();
 
@@ -100,31 +100,36 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
 
-    connect(ui->receive_timeset, &QRadioButton::toggled, this, [this](bool checked) {
-        if (checked) {
+    connect(ui->receive_timeset, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+        {
             currentControlType = TimeControl;
             ui->receive_timeset_edit->setEnabled(true);
             ui->receive_sizeset_edit->setEnabled(false);
         }
     });
 
-    connect(ui->receive_sizeset, &QRadioButton::toggled, this, [this](bool checked) {
-        if (checked) {
+    connect(ui->receive_sizeset, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+        {
             currentControlType = SizeControl;
             ui->receive_timeset_edit->setEnabled(false);
             ui->receive_sizeset_edit->setEnabled(true);
         }
     });
 
-    connect(ui->receive_infinity, &QRadioButton::toggled, this, [this](bool checked) {
-        if (checked) {
+    connect(ui->receive_infinity, &QRadioButton::toggled, this, [this](bool checked)
+    {
+        if (checked)
+        {
             currentControlType = InfinityControl;
             ui->receive_timeset_edit->setEnabled(false);
             ui->receive_sizeset_edit->setEnabled(false);
         }
     });
 
-    // 接收控制定时器
     connect(receiveControlTimer, &QTimer::timeout, this, &MainWindow::updateReceiveControlProgress);
 
     scSweepTks = nullptr;
@@ -183,7 +188,6 @@ MainWindow::~MainWindow()
         }
         delete ui;
 
-        //扫描部分
         delete scSweepTks;
         delete dataAcqTks;
     }
@@ -953,8 +957,6 @@ void MainWindow::on_confirmfilename_clicked()
         outputFile = nullptr;
         ui->receiveprocess->setEnabled(false);
     }
-
-
 }
 
 void MainWindow::on_starttosave_clicked()
@@ -1111,12 +1113,10 @@ void MainWindow::switchToNewFile()
         if (currentSplitType == SizeSplit)
         {
             currentFileReceived = 0;
-            //ui->receiveprogress->setValue(0);
         }
         else
         {
             remainingSeconds = timeInterval;
-            //ui->receiveprogress->setValue(0);
         }
         ui->receivestatusTextEdit->append("<font color='green'>继续收集数据...</font>");
     }
@@ -1282,7 +1282,7 @@ void MainWindow::on_endlisten_clicked()
     ui->receiveprogress->setValue(0);
     ui->receivestatusTextEdit->append("<font color='red'>接收已停止，缓冲区已清空</font>");
     ui->receivestatusTextEdit->append("=============================");
-    ui->receiveprogress->setValue(0); // 重置进度条
+    ui->receiveprogress->setValue(0);
 }
 
 void MainWindow::on_receive_data_clear_clicked()
@@ -1839,7 +1839,7 @@ bool MainWindow::OutputParamDat(const QString& path, int chipCount)
     out << static_cast<quint8>(0xAC);out << static_cast<quint8>(value1);
     out << static_cast<quint8>(0xCC);out << static_cast<quint8>(value2);
     out << static_cast<quint8>(0x13);out << static_cast<quint8>(chipCount);
-    for (int i = 0; i < 8; ++i)     //空字节数量，可根据需要修改
+    for (int i = 0; i < 8; ++i)
     {
         out << static_cast<quint8>(0x00);
     }
@@ -4152,7 +4152,6 @@ bool MainWindow::DataRecieve(char *buffer, qint64 *len)
 
 void MainWindow::on_scSweepStop_btn_clicked()
 {
-
     if (scSweepTks)
     {
         scSweepTks->cancel();
@@ -4163,5 +4162,4 @@ void MainWindow::on_scSweepStop_btn_clicked()
         QMetaObject::invokeMethod(dataAcqTimer, &QTimer::stop, Qt::QueuedConnection);
         dataAcqTimer = nullptr;  // 立即置空，避免野指针
     }
-
 }
